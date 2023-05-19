@@ -27,7 +27,7 @@ string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG " -fsanitize=address,undefined -fno-o
 if (BUILD_TESTING)
 
   # aggiungi l'eseguibile statistics.t
-  add_executable(newton.t newton.test.cpp  forzaG.cpp )
+  add_executable(newton.t newton.test.cpp  newton.cpp )
   # aggiungi l'eseguibile statistics.t alla lista dei test
   add_test(NAME newton.t COMMAND newton.t)
 
