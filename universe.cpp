@@ -17,11 +17,19 @@ void U::Universe::evolve(double delta_t)
     for (auto it = copy_.begin(); it < copy_.end(); ++it)
     {
         int idx = std::distance(copy_.begin(), it);
-        double forzax_ = std::accumulate(copy_.begin(), copy_.end(), 0, [=](auto ci)
-                                         { return newton_(it, ci).fx; });
-        double forzay_ = std::accumulate(copy_.begin(), copy_.end(), 0, [=](auto ci)
-                                         { return newton_(it, ci).fy; });
-        galaxy_[idx] = solve(*it, forzax_, forzay_, delta_t);
+
+std::pair<double, double> forza = std::accumulate(copy_.begin(), copy_.end(), std::make_pair(0.0, 0.0), [this, it](std::pair<double, double> sums, const G::PlanetState& ci) 
+{
+    newton_(*it, ci);
+    sums.first += newton_.f_x;
+    sums.second += newton_.f_y;
+    return sums;
+});
+
+
+
+
+        galaxy_[idx] = solve(*it, forza.first, forza.second, delta_t);
     }
 }
 std::vector<G::PlanetState> const &U::Universe::state() const
