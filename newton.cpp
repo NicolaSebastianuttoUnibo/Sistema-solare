@@ -1,4 +1,4 @@
-#include "forzaG.hpp"
+#include "newton.hpp"
 #include <cmath>
 
    void G::Newton::operator()(const G::PlanetState& a, const G::PlanetState& b){
