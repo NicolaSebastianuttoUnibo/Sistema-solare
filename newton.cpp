@@ -3,21 +3,11 @@
 
    void G::Newton::operator()(const G::PlanetState& a, const G::PlanetState& b){
    double d_2{(a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y)};
+   double f=G_*a.m*b.m/(d_2);
+if(d_2==0){f_x=0;f_y=0;return;}
+   f_x=f*(b.x-a.x)/std::sqrt(d_2);
+   f_y=f*(b.y-a.y)/std::sqrt(d_2);
 
-   if(a.x<b.x){//a si trova a sx di b
-f_x=+G_*a.m*b.m/(d_2);
-   }
-   else if(a.x>b.x){//a si trova a dx di b
-f_x=-G_*a.m*b.m/(d_2);
-   }
-   else{f_x=0;}
-
-   if(a.y>b.y){//a si trova in basso di b
-f_y=+G_*a.m*b.m/(d_2);
-   }
-   else if(a.y<b.y){//a si trova in alto di b
-f_y=-G_*a.m*b.m/(d_2);
-   }
-   else{f_y=0;}
-
+   //f_x=d_2; 
+   //f_y=f;
    }

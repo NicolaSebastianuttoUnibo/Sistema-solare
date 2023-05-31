@@ -40,11 +40,11 @@ G::PlanetState U::Universe::solve(G::PlanetState const &ps, double fx, double fy
 {
     double ax = fx / ps.m;
     double vx = ps.v_x + ax * delta_t;
-    double x = ps.x + vx * delta_t + 0.5 * ax * delta_t * delta_t;
+    double x = ps.x + ps.v_x * delta_t + 0.5 * ax * delta_t * delta_t;
 
     double ay = fy / ps.m;
     double vy = ps.v_y + ay * delta_t;
-    double y = ps.y + vy * delta_t + 0.5 * ay * delta_t * delta_t;
+    double y = ps.y + ps.v_y * delta_t + 0.5 * ay * delta_t * delta_t;
 
     G::PlanetState r{ps.m, x, y, vx, vy};
     return r;
