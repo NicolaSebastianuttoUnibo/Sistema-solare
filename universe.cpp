@@ -38,11 +38,11 @@ std::vector<G::PlanetState> const &U::Universe::state() const
 }
 G::PlanetState U::Universe::solve(G::PlanetState const &ps, double fx, double fy, double delta_t) const
 {
-    double ax = 1e-18 x fx / ps.m; "non so cosa sia boh"
+    double ax =  fx / ps.m; 
     double vx = ps.v_x + ax * delta_t;
     double x = ps.x + ps.v_x * delta_t + 0.5 * ax * delta_t * delta_t;
 
-    double ay = 1e-18 x fy / ps.m;
+    double ay =  fy / ps.m;
     double vy = ps.v_y + ay * delta_t;
     double y = ps.y + ps.v_y * delta_t + 0.5 * ay * delta_t * delta_t;
 
