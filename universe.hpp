@@ -26,6 +26,7 @@ class FileUniverse : public Universe {
   FileUniverse(G::Newton const &newton, std::string str);
   void push_back(G::PlanetState const &ps);
   void remove(G::PlanetState const &ps);
+  void save()
 };
 
 }  // namespace U

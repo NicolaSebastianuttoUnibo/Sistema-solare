@@ -36,3 +36,15 @@ void U::FileUniverse::push_back(G::PlanetState const &ps) {
 }
 
 void U::FileUniverse::remove(G::PlanetState const &ps) {}
+void U::FileUniverse::save(G::PlanetState const &ps) {
+  std::ofstream outFile(file_, std::ios::trunc);
+  if (outFile.is_open()) {
+    for (const auto &item : galaxy_) {
+      push_back(item);
+    }
+
+    outFile.close();
+    else {
+      std::cerr << "Impossibile aprire il file." << std::endl;
+    }
+  }
