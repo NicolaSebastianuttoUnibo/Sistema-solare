@@ -18,5 +18,15 @@ class Universe {
   void evolve(double delta_t);
   std::vector<G::PlanetState> const &state() const;
 };
+
+class FileUniverse : public Universe {
+  std::string file_;
+
+ public:
+  FileUniverse(G::Newton const &newton, std::string str);
+  void push_back(G::PlanetState const &ps);
+  void remove(G::PlanetState const &ps);
+};
+
 }  // namespace U
 #endif
