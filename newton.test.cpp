@@ -140,4 +140,12 @@ TEST_CASE("Testing the class handling a floating point data sample") {
     CHECK(u.state()[1].x == doctest::Approx(100 - 3.33e-25));
     CHECK(u.state()[1].y == doctest::Approx(0));
   }
+  SUBCASE("Fourth Universe") {
+    G::Newton n{};
+    U::FileUniverse u(n, "esempio");
+    G::PlanetState p1{1e10, 0, 0, 0, 0};
+    G::PlanetState p2{1, 100, 0, 0, 0};
+    u.push_back(p1);
+    u.push_back(p2);
+  }
 }

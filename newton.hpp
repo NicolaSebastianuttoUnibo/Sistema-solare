@@ -1,6 +1,6 @@
 #ifndef FORZA_G_HPP
 #define FORZA_G_HPP
-
+#include <string>
 namespace G {
 
 struct PlanetState {
@@ -9,6 +9,8 @@ struct PlanetState {
   double y{};    // pos_y
   double v_x{};  // vel x
   double v_y{};  // vel y
+  double r{};
+  std::string texture{};
 };
 
 struct Newton {

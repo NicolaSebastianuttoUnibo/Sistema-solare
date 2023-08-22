@@ -7,13 +7,14 @@ U::FileUniverse::FileUniverse(G::Newton const &newton, std::string str)
     : Universe(newton), file_{str + ".txt"} {
   std::ifstream file{file_};
   if (file.good()) {
-    std::cerr << "Il file esiste già\n";
     file.close();
+    throw std::runtime_error("Il file esiste già\n");
+
   } else {
     std::ofstream creafile(file_);
 
     if (!creafile.is_open()) {
-      std::cerr << "impossibille creare il file\n";
+      throw std::runtime_error("Impossibile aprire il file " + file_ + "\n");
     } else {
       creafile.close();
     }
@@ -26,7 +27,7 @@ void U::FileUniverse::push_back(G::PlanetState const &ps) {
   std::ofstream outputFile(file_, std::ios::app);
 
   if (!outputFile.is_open()) {
-    std::cerr << "Impossibile aprire il file " << filename << "\n";
+    throw std::runtime_error("Impossibile aprire il file " + file_ + "\n");
   }
 
   outputFile << "\n"
@@ -36,7 +37,7 @@ void U::FileUniverse::push_back(G::PlanetState const &ps) {
 }
 
 void U::FileUniverse::remove(G::PlanetState const &ps) {}
-void U::FileUniverse::save(G::PlanetState const &ps) {
+void U::FileUniverse::save() {
   std::ofstream outFile(file_, std::ios::trunc);
   if (outFile.is_open()) {
     for (const auto &item : galaxy_) {
@@ -44,7 +45,7 @@ void U::FileUniverse::save(G::PlanetState const &ps) {
     }
 
     outFile.close();
-    else {
-      std::cerr << "Impossibile aprire il file." << std::endl;
-    }
+  } else {
+    throw std::runtime_error("Impossibile aprire il file " + file_ + "\n");
   }
+}

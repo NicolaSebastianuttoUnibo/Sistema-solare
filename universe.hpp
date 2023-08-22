@@ -1,5 +1,6 @@
 #ifndef UNIVERSE_HPP
 #define UNIVERSE_HPP
+#include <string>
 #include <vector>
 
 #include "newton.hpp"
@@ -21,12 +22,13 @@ class Universe {
 
 class FileUniverse : public Universe {
   std::string file_;
+  std::vector<G::PlanetState> galaxy_;
 
  public:
   FileUniverse(G::Newton const &newton, std::string str);
   void push_back(G::PlanetState const &ps);
   void remove(G::PlanetState const &ps);
-  void save()
+  void save();
 };
 
 }  // namespace U
