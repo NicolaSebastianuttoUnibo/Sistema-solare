@@ -14,8 +14,8 @@ struct Newton {
 // void operator()(G::PlanetState const& a, G::PlanetState const& b);
 void operator()(G::PlanetState const& a, G::PlanetState const& b);
 void operator()(Universe* u,G::PlanetState const& a, G::PlanetState const& b);
-private:
- double G_{6.67430e-29};  /// costante G (MN*Mm^2/kg^2) our G = usual G*10^-18
+
+const double G_{6.67430e-29*3600*3600};  /// costante G (MN*Mm^2/kg^2) our G = usual G*10^-18
 };
 
 
@@ -27,7 +27,8 @@ Newton newton_;
  std::vector<G::PlanetState> copy_;
  G::PlanetState solve(G::PlanetState const &ps, double fx, double fy,
                       double delta_t) const;
-
+std::vector<G::PlanetState> importantplanet_;
+void findimportantplanet();
 
 public:
  Universe(Newton const &newton);
