@@ -227,7 +227,7 @@ SUBCASE("Third Universe") {
   CHECK(u.state()[1].x == doctest::Approx(100));
   CHECK(u.state()[1].y == doctest::Approx(0));
 }
-/*
+
 
 
   SUBCASE("Fourth Universe") {
@@ -285,7 +285,7 @@ CHECK(u.size() == doctest::Approx(2));
 
 
 
-*/
+
 
 
 }
