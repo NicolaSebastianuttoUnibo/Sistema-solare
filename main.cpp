@@ -15,7 +15,7 @@
 #include <memory>
 
 
-
+#include <cmath>
 
 
 
@@ -28,6 +28,7 @@ int main()
 
 
  bool selecting;
+ bool selected;
  int choose;
  std::vector<std::string> choice1={"Set\nmass","Set\npos","Set\nvelocity","Set\nradius"};
 
@@ -39,6 +40,7 @@ int main()
 
 sf::Font font;
 sf::CircleShape planet(0.f);
+sf::CircleShape contorno(0.f);
  
 
 
@@ -167,7 +169,7 @@ sf::RenderWindow window(sf::VideoMode(800, 800), "UNIVERSE");
 
 
 
-               if (add_button.isClicked(mousePosition)&&add_button.isVisible()) {
+               else if (add_button.isClicked(mousePosition)&&add_button.isVisible()) {
                G::PlanetState p{1e10, -camera.x+400, -camera.y+400, 0, 0,100,"default"};
                u.push_back(p);
                u.save();
@@ -180,9 +182,9 @@ sf::RenderWindow window(sf::VideoMode(800, 800), "UNIVERSE");
 
 
 
-               if (select_button.isClicked(mousePosition)&&select_button.isVisible()) {
+               else if (select_button.isClicked(mousePosition)&&select_button.isVisible()) {
                   selecting=!selecting;
-                  if(selecting){
+                  if(selecting){choose=0;
                    select_button.setText("Unselect\nplanet");
                next_button.show();
                set_button.show();
@@ -201,8 +203,23 @@ sf::RenderWindow window(sf::VideoMode(800, 800), "UNIVERSE");
                }
 
 
-              
+               else if (next_button.isClicked(mousePosition)&&next_button.isVisible()&&!selected) {
+                if(choose<u.size()-1){choose++;}
+                else {choose=0;}
+               camera.x=-u[choose].x+400;
+               camera.y=-u[choose].y+400;
+               }
+else{if (selecting){for (int i=0; i<u.size();++i){
+    /*sf::FloatCircle buttonBounds = shape_.getGlobalBounds();
+   return buttonBounds.contains(sf::Vector2f(mousePosition));*/
 
+float radius=u[i].r;
+float distance=std::sqrt(std::pow(mousePosition.x-(-u[i].x-camera.x),2)+std::pow(mousePosition.x-(-u[i].y-camera.y),2));
+if (distance<radius) {if (i==choose){selected=!selected;} else{choose=i;} break;}
+}
+
+
+}}
 
 
 
@@ -243,20 +260,35 @@ sf::FloatRect visibleArea(0, 0, window.getSize().x, window.getSize().y);
 
 for(int i=0;i<u.size();++i){
  float r=u[i].r;
-planet.setRadius(r);
-planet.setPosition(u[i].x+camera.x,u[i].y+camera.y);
 
 
-   planet.setOrigin(r,r);
-   planet.setTexture(u[i].texture);
+
+
+   
+   
 
 
 sf::FloatRect planetBounds(u[i].x + camera.x - r, u[i].y + camera.y - r, 2 * r, 2 * r);
 
 
-if (planetBounds.intersects(visibleArea)) {
-window.draw(planet);}
+if (planetBounds.intersects(visibleArea)) {if(i==choose&&selecting){
+    contorno.setRadius(1.05*r);
+    contorno.setOrigin(1.05*r, 1.05*r);
+    contorno.setFillColor(sf::Color::White); if (selected) {contorno.setFillColor(sf::Color::Yellow);}
+    contorno.setPosition(u[i].x+camera.x,u[i].y+camera.y);
+    window.draw(contorno);
+}
+    
+    
+    
+    planet.setPosition(u[i].x+camera.x,u[i].y+camera.y);
+    planet.setOrigin(r,r);
+    planet.setRadius(r);
+planet.setTexture(u[i].texture);
+window.draw(planet);
 
+   
+}
 
 }
 
