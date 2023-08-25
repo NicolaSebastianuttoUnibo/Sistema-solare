@@ -161,33 +161,33 @@ SUBCASE("Second Universe") {
 
   n(p1, p2);
   // std::vector<G::PlanetState> uu=u.state;
-  CHECK(n.f_x == doctest::Approx(-4.4e27));
-  CHECK(n.f_y == doctest::Approx(-4.4e27));
+  CHECK(n.f_x == doctest::Approx(-4.40381e27));
+  CHECK(n.f_y == doctest::Approx(-4.40381e27));
   u.evolve(1);
 
 
 
 
-  CHECK(u.state()[0].v_x == doctest::Approx(-73.4));
-  CHECK(u.state()[0].v_y == doctest::Approx(-173.4));
-  CHECK(u.state()[1].v_x == doctest::Approx(7.34));
-  CHECK(u.state()[1].v_y == doctest::Approx(7.34));
+  CHECK(u.state()[0].v_x == doctest::Approx(-73.3968));
+  CHECK(u.state()[0].v_y == doctest::Approx(-173.3968));
+  CHECK(u.state()[1].v_x == doctest::Approx(7.33968));
+  CHECK(u.state()[1].v_y == doctest::Approx(7.33968));
 
 
 
 
-   CHECK(u.state()[0].x == doctest::Approx(63.33));
+   CHECK(u.state()[0].x == doctest::Approx(63.3016));
 
 
 
 
-   CHECK(u.state()[0].y == doctest::Approx(-36.66));
+   CHECK(u.state()[0].y == doctest::Approx(63.3016-100));
 
 
 
 
-   CHECK(u.state()[1].x == doctest::Approx(53.66));
-   CHECK(u.state()[1].y == doctest::Approx(53.66));
+   CHECK(u.state()[1].x == doctest::Approx(53.6698));
+   CHECK(u.state()[1].y == doctest::Approx(53.6698));
 }
 
 

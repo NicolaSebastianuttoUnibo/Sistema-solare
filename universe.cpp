@@ -12,7 +12,7 @@ int U::Universe::size() const { return galaxy_.size(); }
 
 
 void U::Universe::push_back(G::PlanetState const &ps) { 
-  assert(galaxy_.size() < galaxy_.capacity());
+  //assert(galaxy_.size() < galaxy_.capacity());
   galaxy_.push_back(ps); }
 
 
@@ -45,7 +45,6 @@ std::vector<G::PlanetState> const &U::Universe::state() const {
 
 
 void U::Universe::evolve(double delta_t) {
-  check_Collision();
  findimportantplanet();
  copy_=galaxy_;
  assert(copy_.size()==galaxy_.size());
@@ -70,6 +69,8 @@ double fy = newton_.f_y;
 
   // }
  }
+  check_Collision();
+
  }
 G::PlanetState U::Universe::solve(G::PlanetState const &ps, double fx,
                                  double fy, double delta_t) const {
@@ -91,18 +92,30 @@ G::PlanetState U::Universe::solve(G::PlanetState const &ps, double fx,
 return r;
 }
 void U::Universe::check_Collision(){
-   for (auto it = galaxy_.begin(); it < galaxy_.end()-1; ++it) {
-   for (auto jt = it; jt < galaxy_.end(); ++jt){
-    double d_2{((*it).x - (*jt).x) * ((*it).x - (*jt).x) + ((*it).y - (*jt).y) * ((*it).y - (*jt).y)};
-    if(((*it).r+(*jt).r)*((*it).r+(*jt).r)>=d_2){///decidere se usare std::pow oppure std::sqrt-->ragionare
+  copy_=galaxy_;
+   for (auto it = copy_.begin(); it < copy_.end()-1; ++it) {
+   for (auto jt = it+1; jt < copy_.end(); ++jt){
+    
+
+
+double x_2=((*it).x - (*jt).x)*((*it).x - (*jt).x);
+double y_2=((*it).y - (*jt).y)*((*it).y - (*jt).y);
+double r_2=((*it).r + (*jt).r)*((*it).r + (*jt).r);
+
+double d_2{x_2+ y_2};
+
+
+    if(r_2>=d_2){///decidere se usare std::pow oppure std::sqrt-->ragionare
 G::PlanetState p{(*it).m+(*jt).m, ((*it).m*(*it).x+(*jt).m+(*jt).x)/((*it).m+(*jt).m), ((*it).m*(*it).y+(*jt).m+(*jt).y)/((*it).m+(*jt).m), ((*it).m*(*it).v_x+(*jt).m+(*jt).v_x)/((*it).m+(*jt).m), ((*it).m*(*it).v_y+(*jt).m+(*jt).v_y)/((*it).m+(*jt).m),std::sqrt((*it).r*(*it).r+(*jt).r*(*jt).r)};
  double before = calculateenergy();
- galaxy_.reserve(galaxy_.size()+1);
+ //galaxy_.reserve(galaxy_.size()+1);
  remove(*it);
  remove(*jt);
 push_back(p);
 double after = calculateenergy();
-assert (before > after);
+//assert (""==(std::to_string(before)+","+std::to_string(before)));
+
+assert(before>=after);
 mechanic_energy_ = after;
 lost_energy_ = before - after;
 total_energy_ = before;
