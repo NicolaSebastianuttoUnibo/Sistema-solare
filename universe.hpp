@@ -1,8 +1,11 @@
 
-
 #ifndef UNIVERSE_HPP
 #define UNIVERSE_HPP
 #include <vector>
+
+
+
+
 
 
 
@@ -18,8 +21,18 @@ void operator()(G::PlanetState const& a, G::PlanetState const& b);
 void operator()(Universe* u,G::PlanetState const& a, G::PlanetState const& b);
 
 
+
+
 const double G_{6.67430e-29*3600*3600};  /// costante G (MN*Mm^2/kg^2) our G = usual G*10^-18
 };
+
+
+
+
+
+
+
+
 
 
 
@@ -33,9 +46,10 @@ Newton newton_;
 std::vector<G::PlanetState> galaxy_;
 std::vector<G::PlanetState> copy_;
 G::PlanetState solve(G::PlanetState const &ps, double fx, double fy,
-                     double delta_t) const;
+                    double delta_t) const;
 std::vector<G::PlanetState> importantplanet_;
 void check_Collision();
+
 
 public:
 double mechanic_energy_;
@@ -44,6 +58,8 @@ double lost_energy_;
 double total_energy_;
 double calculateenergy();
 void findimportantplanet();
+
+
 
 
 Universe(Newton const &newton);
@@ -55,7 +71,26 @@ std::vector<G::PlanetState> const &state() const;
 
 
 
+
+
+
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -74,6 +109,7 @@ std::vector<G::PlanetState> const &state() const;
 
 }  // namespace U
 #endif
+
 
 
 
