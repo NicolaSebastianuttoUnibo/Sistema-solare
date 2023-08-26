@@ -18,9 +18,8 @@ struct Newton {
 double f_x{};  // force x
 double f_y{};  // force y
 void operator()(G::PlanetState const& a, G::PlanetState const& b);
-void operator()(Universe* u,G::PlanetState const& a, G::PlanetState const& b);
-
-
+double d_2(G::PlanetState const& a, G::PlanetState const& b);
+double r_2(G::PlanetState const& a, G::PlanetState const& b);
 
 
 const double G_{6.67430e-29*3600*3600};  /// costante G (MN*Mm^2/kg^2) our G = usual G*10^-18
