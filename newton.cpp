@@ -6,8 +6,8 @@
 
 
 void U::Newton::operator()(const G::PlanetState& a, const G::PlanetState& b) {
-double distance{d_2(a,b)};
-double f = G_ * a.m * b.m / (distance);
+long double distance{d_2(a,b)};
+long double f = G_ * a.m * b.m / (distance);
 
 
 if (distance == 0) {
@@ -19,8 +19,8 @@ f_x = f * (b.x - a.x) / std::sqrt(distance);
 f_y = f * (b.y - a.y) / std::sqrt(distance);
 }
 
-double U::Newton::d_2(G::PlanetState const& a, G::PlanetState const& b){
-  double  r = (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+long double U::Newton::d_2(G::PlanetState const& a, G::PlanetState const& b){
+long double  r = (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
   assert (r>=0);
   return r;
   

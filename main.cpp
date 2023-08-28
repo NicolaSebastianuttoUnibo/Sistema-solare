@@ -63,7 +63,7 @@ std::vector<sf::Vertex> drawArrow(sf::Vector2f start, sf::Vector2f punta,
 int main() {
   U::Newton newton{};
 
-  U::Universe universo(newton);
+  
   bool selecting{false};
   bool selected;
   bool firstwindow{true};
@@ -209,7 +209,9 @@ finestre_aperte:
               evolvewindow.setVisible(true);
               firstwindow = false;
               animation = true;
-              for(int i=0; i<u.size();i++){universo.push_back(u[i]);}
+               (*ptr).findimportantplanet();
+            ///  (*ptr)=u;
+            //  for(int i=0; i<u.size();i++){(*ptr).push_back(u[i]);}
             
             }
             traj.resize(u.size());
@@ -580,12 +582,14 @@ finestre_aperte:
 
     else {
       ///////SECONDA FINESTRA
+
+      
       sf::Event event;
 
       bool pressed{false};
       while (evolvewindow.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
-              for(int i=0; i<universo.size();i++){universo.remove(universo[0]);}
+          //    for(int i=0; i<(*ptr).size();i++){(*ptr).remove((*ptr)[0]);}
 
           window.setVisible(true);
           evolvewindow.setVisible(false);
@@ -611,8 +615,8 @@ finestre_aperte:
             createvector = true;
             planetsfollowing.clear();
             choose2 = 0;
-            assert(choose < universo.size());
-            planetsfollowing.push_back(&universo[choose]);
+            assert(choose < (*ptr).size());
+            planetsfollowing.push_back(&(*ptr)[choose]);
           }
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
@@ -629,8 +633,8 @@ finestre_aperte:
             if (choose2 < planetsfollowing.size() - 1) {
               choose2++;
             } else {
-              assert(choose < universo.size());
-              planetsfollowing.push_back(&universo[choose]);
+              assert(choose < (*ptr).size());
+              planetsfollowing.push_back(&(*ptr)[choose]);
               choose2++;
               assert(choose2 < planetsfollowing.size());
             }
@@ -639,27 +643,27 @@ finestre_aperte:
         }  /// devi essere nel penultimo elemento altrimenti pushback
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-          if (choose < universo.size() - 1) {
+          if (choose < (*ptr).size() - 1) {
             choose++;
           } else {
             choose = 0;
           }
-          assert(choose < universo.size());
+          assert(choose < (*ptr).size());
           if (createvector) {
             assert(choose2 < planetsfollowing.size());
-            planetsfollowing[choose2] = &universo[choose];
+            planetsfollowing[choose2] = &(*ptr)[choose];
           }
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
           if (choose > 0) {
             choose--;
           } else {
-            choose = universo.size() - 1;
+            choose = (*ptr).size() - 1;
           }
           assert(choose < u.size());
           if (createvector) {
             assert(choose2 < u.size());
-            planetsfollowing[choose2] = &universo[choose];
+            planetsfollowing[choose2] = &(*ptr)[choose];
           }
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::X)) {
@@ -703,6 +707,7 @@ finestre_aperte:
         }
 
       }  /// poll event
+      
       renderTexture.clear();
 
       elapsed = clock.restart();
@@ -710,20 +715,21 @@ finestre_aperte:
 
       evolvewindow.clear();
 
-      if (animation) {
-        unsigned int s = universo.size();
-        universo.evolve(1);
-        if (s < universo.size()) {
-          if (choose >= universo.size()) {
+      // if (animation) {
+      unsigned int s = (*ptr).size();
+     assert( (*ptr).size()>0);
+        (*ptr).evolve(1);
+        if (s < (*ptr).size()) {
+          if (choose >= (*ptr).size()) {
             choose--;
             assert(choose < u.size());
           }
           followPlanets = false;
         }
-      }
+      // }
       if (followOnePlanet) {
-        camera.x = 400 - universo[choose].x;
-        camera.y = 400 - universo[choose].y;
+        camera.x = 400 - (*ptr)[choose].x;
+        camera.y = 400 - (*ptr)[choose].y;
       }
 
       else if (followPlanets) {
@@ -760,31 +766,31 @@ finestre_aperte:
 
         camera.x = 400 - (*planetsfollowing[choose2]).x;
         camera.y = 400 - (*planetsfollowing[choose2]).y;
-        text2.setPosition(universo[choose].x - 400, universo[choose].y - 400);
+        text2.setPosition((*ptr)[choose].x - 400, (*ptr)[choose].y - 400);
         renderTexture.draw(text2);
       }
 
-      planet.setTexture(universo[0].texture);
+      planet.setTexture((*ptr)[0].texture);
 
-      for (unsigned int i = 0; i < universo.size(); ++i) {
+      for (unsigned int i = 0; i < (*ptr).size(); ++i) {
         if (animation) {
-          traj[i].append(sf::Vertex(sf::Vector2f(universo[i].x, universo[i].y),
+          traj[i].append(sf::Vertex(sf::Vector2f((*ptr)[i].x, (*ptr)[i].y),
                                     sf::Color::Yellow));
         }
 
         float r = u[i].r;
 
-        sf::FloatRect planetBounds(universo[i].x + camera.x - r,
-                                   universo[i].y + camera.y - r, 2 * r, 2 * r);
+        sf::FloatRect planetBounds((*ptr)[i].x + camera.x - r,
+                                   (*ptr)[i].y + camera.y - r, 2 * r, 2 * r);
 
         renderTexture.draw(traj[i]);
 
         if (planetBounds.intersects(visibleArea2)) {
-          planet.setPosition(universo[i].x, universo[i].y);
+          planet.setPosition((*ptr)[i].x, (*ptr)[i].y);
 
           planet.setOrigin(r, r);
           planet.setRadius(r);
-          planet.setTexture(universo[i].texture);
+          planet.setTexture((*ptr)[i].texture);
           renderTexture.draw(planet);
 
         }  /// i pianeti visibili
@@ -806,6 +812,8 @@ finestre_aperte:
       renderTexture.clear();
 
       // customView.move(camera.x, camera.y);
+
+      
     }
 
   }  /// while window e evolvewindow
