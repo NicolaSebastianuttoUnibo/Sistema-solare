@@ -3,13 +3,17 @@
 #include <cmath>
 
 
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
+#include <SFML/Window.hpp>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <numeric>
 
 
 U::Universe::Universe(U::Newton const &newton) : newton_{newton},initial_energy_{calculateenergy()} {}
-int U::Universe::size() const { return galaxy_.size(); }
+unsigned int U::Universe::size() const { return galaxy_.size(); }
 
 void U::Universe::push_back(G::PlanetState const &ps) {
  galaxy_.push_back(ps); }
@@ -41,6 +45,14 @@ for (auto it = copy_.begin(); it < copy_.end(); ++it) {
 
 
 
+    std::pair<double, double> forza = std::accumulate(
+        copy_.begin(), copy_.end(), std::make_pair(0.0, 0.0),
+        [this, it](std::pair<double, double> sums, const G::PlanetState &ci) {
+          newton_(*it, ci);
+          sums.first += newton_.f_x;
+          sums.second += newton_.f_y;
+          return sums;
+        });
 
     double ax = newton_.G_ * (*jt).m / (((*it).r + (*jt).r) * ((*it).r + (*jt).r));
     double ay = newton_.G_ * (*jt).m / (((*it).r + (*jt).r) * ((*it).r + (*jt).r));
@@ -49,6 +61,7 @@ for (auto it = copy_.begin(); it < copy_.end(); ++it) {
       importantplanet_.push_back(&(*jt));
     }
   }
+  // galaxy_[0].x+=1000;
 }
 assert(importantplanet_.size()%2==0);
 }
@@ -167,3 +180,23 @@ double U::Universe::calculateenergy(){
 
 
 
+
+int U::Universe::findNearestPlanet(sf::Vector2i point) {
+  auto compareDistance = [&point](const G::PlanetState &planet1,
+                                  const G::PlanetState &planet2) {
+    float distance1 = std::hypot(planet1.x - point.x, planet1.y - point.y);
+    float distance2 = std::hypot(planet2.x - point.x, planet2.y - point.y);
+    return distance1 < distance2;
+  };
+
+  auto nearestPlanetIterator =
+      std::min_element(galaxy_.begin(), galaxy_.end(), compareDistance);
+
+  if (nearestPlanetIterator != galaxy_.end()) {
+    int nearestIndex =
+        static_cast<int>(std::distance(galaxy_.begin(), nearestPlanetIterator));
+    return nearestIndex;
+  } else {
+    return -1;  // Nessun pianeta nel vettore
+  }
+}

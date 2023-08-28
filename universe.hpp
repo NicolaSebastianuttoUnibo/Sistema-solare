@@ -1,6 +1,7 @@
 
 #ifndef UNIVERSE_HPP
 #define UNIVERSE_HPP
+#include <string>
 #include <vector>
 
 
@@ -34,6 +35,8 @@ void check_Collision();
 
 
 public:
+  std::vector<G::PlanetState> galaxy_;
+
 double mechanic_energy_;
 const double initial_energy_;
 double lost_energy_;
@@ -47,45 +50,34 @@ void findimportantplanet();
 Universe(Newton const &newton);
 void push_back(G::PlanetState const &ps);
 void remove(G::PlanetState const &ps);
-int size() const;
+unsigned int size() const;
 void evolve(double delta_t);
+  void remove(G::PlanetState const &ps);
+
 std::vector<G::PlanetState> const &state() const;
+
+  int findNearestPlanet(sf::Vector2i point);
+
+  G::PlanetState &operator[](unsigned int index);
+  const G::PlanetState &operator[](unsigned int index) const;
+};
+
+class FileUniverse : public Universe {
+  std::string file_;
+  bool isValidFile(const std::string &filename);
+  unsigned int countPlanets(const std::string &filename);
+  std::vector<G::PlanetState> copy_;
+
+ public:
+  FileUniverse(G::Newton const &newton, std::string str, bool a);
+  void push_back(G::PlanetState const &ps);
+  void remove(G::PlanetState const &ps);
+  void save();
+  void download();
 
 
 
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }  // namespace U
 #endif
 

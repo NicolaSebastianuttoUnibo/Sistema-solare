@@ -1,5 +1,3 @@
-#cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
-
 cmake_minimum_required(VERSION 3.16)
 project(planets VERSION 0.1.0)
 
@@ -20,14 +18,14 @@ string(APPEND CMAKE_CXX_FLAGS " -Wall -Wextra")
 string(APPEND CMAKE_CXX_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
 string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
 
-#add_executable(chain hooke.cpp chain.cpp main.cpp)
-
+add_executable(main Button.cpp main.cpp newton.cpp universe.cpp fileuniverse.cpp)
+target_link_libraries(main -lsfml-graphics -lsfml-window -lsfml-system)
 # se il testing e' abilitato...
 #   per disabilitare il testing, passare -DBUILD_TESTING=OFF a cmake durante la fase di configurazione
 if (BUILD_TESTING)
 
   # aggiungi l'eseguibile statistics.t
-  add_executable(newton.t newton.test.cpp  newton.cpp universe.cpp)
+  add_executable(newton.t newton.test.cpp  newton.cpp universe.cpp fileuniverse.cpp)
   # aggiungi l'eseguibile statistics.t alla lista dei test
   add_test(NAME newton.t COMMAND newton.t)
 

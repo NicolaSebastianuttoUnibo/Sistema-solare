@@ -1,8 +1,5 @@
 #include "universe.hpp"
 
-
-
-
 #include <cmath>
 #include <cassert>
 
@@ -12,6 +9,9 @@ void U::Newton::operator()(const G::PlanetState& a, const G::PlanetState& b) {
 double distance{d_2(a,b)};
 double f = G_ * a.m * b.m / (distance);
 
+void G::Newton::operator()(const G::PlanetState& a, const G::PlanetState& b) {
+  double d_2{(a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)};
+  double f = G_ * a.m * b.m / (d_2);
 
 if (distance == 0) {
   f_x = 0;
@@ -34,6 +34,22 @@ double U::Newton::r_2(G::PlanetState const& a, G::PlanetState const& b){
   assert (r>=0);
   return r;
 }
+
+
+void G::PlanetState::setPlanetTexture( std::string texturePath, sf::Texture* pointer) {
+         stringtexture = texturePath;
+         texture = pointer;
+       if(pointer==nullptr){
+   throw std::runtime_error("nullpointer");}
+
+
+     
+  }
+
+
+
+
+
 
 
 

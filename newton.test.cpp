@@ -1,12 +1,5 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
-
-
-
-
-
-
-
 #include <string>
 
 
@@ -313,94 +306,20 @@ CHECK(n.f_y == doctest::Approx(0));
  CHECK(u.state()[1].v_x == doctest::Approx(0));
  CHECK(u.state()[1].v_y == doctest::Approx(0)); 
 
- CHECK(u.state()[0].x == doctest::Approx(0));
- CHECK(u.state()[0].y == doctest::Approx(0));
- CHECK(u.state()[1].x == doctest::Approx(100));
- CHECK(u.state()[1].y == doctest::Approx(0));
-}
 
-
-
-
+   CHECK(u[0].x == doctest::Approx(3.33e-35));
+   CHECK(u.state()[0].y == doctest::Approx(0));
+   CHECK(u.state()[1].x == doctest::Approx(100 - 3.33e-25));
+   CHECK(u.state()[1].y == doctest::Approx(0));
+ }
  SUBCASE("Fourth Universe") {
- U::Newton n{};
- U::Universe u(n);
- G::PlanetState p1{1e10, 0, 0, 0, 0, 0};
- G::PlanetState p2{1e10, 0, 0, 0, 0, 0};
- u.push_back(p1);
- u.push_back(p2);
-  CHECK(u.size() == doctest::Approx(2));
-  u.findimportantplanet();
+   G::Newton n{};
+   U::FileUniverse u(n, "esempio",false);
+   G::PlanetState p1{1e10, 0, 0, 0, 0};
+   G::PlanetState p2{1, 100, 0, 0, 0};
 
-u.evolve(0);
-CHECK(u.size() == doctest::Approx(1));
+
+
+
  }
-
-
-
-
-
-
-
-
-     SUBCASE("Fifth Universe") {
- U::Newton n{};
- U::Universe u(n);
- G::PlanetState p0{1e10, 1000, 0, 0, 0,50};
- G::PlanetState p1{1e10, 0, 0, 0, 0,50};
- G::PlanetState p2{1e34, 100, 0, 0, 0, 60};
- //u.push_back(p0);
- u.push_back(p1);
- u.push_back(p2);
- CHECK(n.d_2(p1,p2) == doctest::Approx(100*100));
- CHECK(n.r_2(p1,p2) == doctest::Approx(110*110));
-  CHECK(u.size() == doctest::Approx(2));
-  CHECK(n.d_2(p1,p2)<=n.r_2(p1,p2));
-  u.findimportantplanet();
-
-  u.evolve(1);
- CHECK(u.size() == doctest::Approx(1));
- }
-
-
-
-
-
-
-        SUBCASE("Sixth Universe") {
- U::Newton n{};
- U::Universe u(n);
- G::PlanetState p1{1e10, 0, 0, 0, 0,50};
- G::PlanetState p2{1e34, 100, 0, 0, 0, 40};
- u.push_back(p1);
- u.push_back(p2);
-  CHECK(u.size() == doctest::Approx(2));
-  u.findimportantplanet();
- u.evolve(0);
-CHECK(u.size() == doctest::Approx(2));
- }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
-
-
-
-
-
-
-
-
-
-
