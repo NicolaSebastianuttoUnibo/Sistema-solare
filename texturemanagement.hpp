@@ -80,7 +80,7 @@ void assignTexture(U::Universe *u){
    assert(texture_vector_.size()!=0);
 
 
-for(int i=0;i<(*u).size();++i){
+for(unsigned int i=0;i<(*u).size();++i){
 unsigned int idx=std::distance(texture_name_.begin(),std::find(texture_name_.begin(),texture_name_.end(),  (*u)[i].stringtexture));
 
 

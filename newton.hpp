@@ -9,10 +9,10 @@ namespace G {
 
 struct PlanetState {
  double m{};    // mass
- double x{};    // pos_x 1x=1000km (espresssa in megametri 10^6 m)
- double y{};    // pos_y
- double v_x{};  // vel x
- double v_y{};  // vel y
+ long double x{};    // pos_x 1x=1000km (espresssa in megametri 10^6 m)
+ long double y{};    // pos_y
+ long double v_x{};  // vel x
+ long double v_y{};  // vel y
  double r{};
  std::string stringtexture{};
  sf::Texture *texture{};
