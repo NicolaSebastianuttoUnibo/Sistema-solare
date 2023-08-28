@@ -1,21 +1,7 @@
 #ifndef FORZA_G_HPP
 #define FORZA_G_HPP
 
-
-
-
-
-
-
-
-
-
-
-
 namespace G {
-
-
-
 
 struct PlanetState {
 double m{};    // mass
@@ -33,17 +19,7 @@ bool operator==(const PlanetState& a)const{
 
 
 
-
 };
-
-
-
-
-
-
-
-
-
 
 
 

@@ -13,8 +13,6 @@ double distance{d_2(a,b)};
 double f = G_ * a.m * b.m / (distance);
 
 
-
-
 if (distance == 0) {
   f_x = 0;
   f_y = 0;
@@ -36,6 +34,10 @@ double U::Newton::r_2(G::PlanetState const& a, G::PlanetState const& b){
   assert (r>=0);
   return r;
 }
+
+
+
+
 
 
 

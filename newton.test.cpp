@@ -367,16 +367,6 @@ CHECK(u.size() == doctest::Approx(1));
 
 
 
-
-
-
-
-
-
-
-
-
-
         SUBCASE("Sixth Universe") {
  U::Newton n{};
  U::Universe u(n);

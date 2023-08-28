@@ -8,16 +8,10 @@
 #include <numeric>
 
 
-
-
 U::Universe::Universe(U::Newton const &newton) : newton_{newton},initial_energy_{calculateenergy()} {}
 int U::Universe::size() const { return galaxy_.size(); }
 
-
-
-
 void U::Universe::push_back(G::PlanetState const &ps) {
- //assert(galaxy_.size() < galaxy_.capacity());
  galaxy_.push_back(ps); }
 
 
@@ -34,6 +28,10 @@ auto it = std::find(galaxy_.begin(), galaxy_.end(), ps);
   galaxy_.erase(it);
 }
 }
+
+
+
+
 void U::Universe::findimportantplanet() {
   copy_=galaxy_;
 importantplanet_.clear();
@@ -119,29 +117,9 @@ return r;
 void U::Universe::check_Collision(){
   for (auto it = copy_.begin(); it < copy_.end()-1; ++it) {
   for (auto jt = it+1; jt < copy_.end(); ++jt){
- // for (int i = 0; i<galaxy_.size()-1;++i){
- // for (int j = i+1; j<galaxy_.size();++j){
-//auto it = &copy_[i];
-//auto jt = &copy_[j];
 
 
 
-
-
-
-//double x_2=((*it).x - (*jt).x)*((*it).x - (*jt).x);
-//double y_2=((*it).y - (*jt).y)*((*it).y - (*jt).y);
-//double r_2=((*it).r + (*jt).r)*((*it).r + (*jt).r);
-
-
-//double d_2{x_2+ y_2};
-
-
-
-   /////decidere se usare std::pow oppure std::sqrt-->ragionare
-//if (newton_.d_2(galaxy_[i],galaxy_[j])<=newton_.r_2 (galaxy_[i],galaxy_[j])){
-
-//assert((*it).x);
 
 if (newton_.d_2((*it),(*jt))<=newton_.r_2 ((*it),(*jt))){
 double M = (*it).m+(*jt).m;
