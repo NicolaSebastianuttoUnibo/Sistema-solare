@@ -26,7 +26,7 @@ bool isValidLine(const std::string &line) {
   return false;
 }
 
-U::FileUniverse::FileUniverse(G::Newton const &newton, std::string str,
+U::FileUniverse::FileUniverse(U::Newton const &newton, std::string str,
                               bool alreadyexistsfortheuser)
     : Universe(newton), file_{str + ".txt"} {
   std::ifstream file{file_};

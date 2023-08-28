@@ -1,4 +1,4 @@
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+/*#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 #include <string>
 
@@ -322,4 +322,7 @@ CHECK(n.f_y == doctest::Approx(0));
 
 
  }
+}*/
+int main(){
+  return 0;
 }

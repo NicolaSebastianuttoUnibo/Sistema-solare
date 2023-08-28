@@ -3,19 +3,21 @@
 #include <cmath>
 
 
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
 #include <algorithm>
 #include <cassert>
-#include <cmath>
 #include <numeric>
+
+
 
 
 U::Universe::Universe(U::Newton const &newton) : newton_{newton},initial_energy_{calculateenergy()} {}
 unsigned int U::Universe::size() const { return galaxy_.size(); }
 
+
+
+
 void U::Universe::push_back(G::PlanetState const &ps) {
+ //assert(galaxy_.size() < galaxy_.capacity());
  galaxy_.push_back(ps); }
 
 
@@ -32,10 +34,6 @@ auto it = std::find(galaxy_.begin(), galaxy_.end(), ps);
   galaxy_.erase(it);
 }
 }
-
-
-
-
 void U::Universe::findimportantplanet() {
   copy_=galaxy_;
 importantplanet_.clear();
@@ -45,14 +43,6 @@ for (auto it = copy_.begin(); it < copy_.end(); ++it) {
 
 
 
-    std::pair<double, double> forza = std::accumulate(
-        copy_.begin(), copy_.end(), std::make_pair(0.0, 0.0),
-        [this, it](std::pair<double, double> sums, const G::PlanetState &ci) {
-          newton_(*it, ci);
-          sums.first += newton_.f_x;
-          sums.second += newton_.f_y;
-          return sums;
-        });
 
     double ax = newton_.G_ * (*jt).m / (((*it).r + (*jt).r) * ((*it).r + (*jt).r));
     double ay = newton_.G_ * (*jt).m / (((*it).r + (*jt).r) * ((*it).r + (*jt).r));
@@ -61,7 +51,6 @@ for (auto it = copy_.begin(); it < copy_.end(); ++it) {
       importantplanet_.push_back(&(*jt));
     }
   }
-  // galaxy_[0].x+=1000;
 }
 assert(importantplanet_.size()%2==0);
 }
@@ -120,8 +109,8 @@ double y = ps.y + ps.v_y * delta_t + 0.5 * ay * delta_t * delta_t;
  
 
 
-G::PlanetState r{ps.m, x, y, vx, vy};
-return r;
+//G::PlanetState r;
+return {ps.m, x, y, vx, vy};
 }
 
 
@@ -148,7 +137,7 @@ M,X/M, Y/M, VX/M, VY/M,R};
 //G::PlanetState p{0,0,0,0,0,0};
 double before = calculateenergy();
 //galaxy_.reserve(galaxy_.size()+1);
-int s = galaxy_.size();
+unsigned int s = galaxy_.size();
 remove(*it);
 remove(*jt);
 push_back(p);
@@ -199,4 +188,13 @@ int U::Universe::findNearestPlanet(sf::Vector2i point) {
   } else {
     return -1;  // Nessun pianeta nel vettore
   }
+}
+
+G::PlanetState &U::Universe::operator[](unsigned int index) {
+  assert(index < galaxy_.size());
+  return galaxy_[index];
+}
+const G::PlanetState &U::Universe::operator[](unsigned int index) const {
+  assert(index < galaxy_.size());
+  return galaxy_[index];
 }

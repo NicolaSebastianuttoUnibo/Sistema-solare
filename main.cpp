@@ -61,7 +61,7 @@ std::vector<sf::Vertex> drawArrow(sf::Vector2f start, sf::Vector2f punta,
 }
 
 int main() {
-  G::Newton newton{};
+  U::Newton newton{};
 
   U::Universe universo(newton);
   bool selecting{false};
@@ -209,7 +209,8 @@ finestre_aperte:
               evolvewindow.setVisible(true);
               firstwindow = false;
               animation = true;
-              universo = u;
+              for(int i=0; i<u.size();i++){universo.push_back(u[i]);}
+            
             }
             traj.resize(u.size());
           }
@@ -584,6 +585,8 @@ finestre_aperte:
       bool pressed{false};
       while (evolvewindow.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
+              for(int i=0; i<universo.size();i++){universo.remove(universo[0]);}
+
           window.setVisible(true);
           evolvewindow.setVisible(false);
           choose2 = 0;

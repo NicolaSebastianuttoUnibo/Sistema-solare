@@ -26,7 +26,6 @@ const double G_{6.67430e-29*3600*3600};  /// costante G (MN*Mm^2/kg^2) our G = u
 
 class Universe {
 Newton newton_;
-std::vector<G::PlanetState> galaxy_;
 std::vector<G::PlanetState> copy_;
 G::PlanetState solve(G::PlanetState const &ps, double fx, double fy,
                     double delta_t) const;
@@ -52,7 +51,6 @@ void push_back(G::PlanetState const &ps);
 void remove(G::PlanetState const &ps);
 unsigned int size() const;
 void evolve(double delta_t);
-  void remove(G::PlanetState const &ps);
 
 std::vector<G::PlanetState> const &state() const;
 
@@ -69,7 +67,7 @@ class FileUniverse : public Universe {
   std::vector<G::PlanetState> copy_;
 
  public:
-  FileUniverse(G::Newton const &newton, std::string str, bool a);
+  FileUniverse(Newton const &newton, std::string str, bool a);
   void push_back(G::PlanetState const &ps);
   void remove(G::PlanetState const &ps);
   void save();
