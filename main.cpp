@@ -180,6 +180,7 @@ int main() {
   text.setFont(font);
   text.setPosition(5, 90);
 
+bool collision;
   text2.setCharacterSize(25);
   text2.setFillColor(sf::Color::White);
   text2.setFont(font);
@@ -715,20 +716,29 @@ finestre_aperte:
 
       evolvewindow.clear();
 
-      // if (animation) {
-      unsigned int s = (*ptr).size();
-     assert( (*ptr).size()>0);
+       if (animation) {
+   
 
      for(int i=0;i<100;i++){
-        (*ptr).evolve(0.01);}
-        if (s < (*ptr).size()) {
+
+          int s = (*ptr).size();
+     assert( (*ptr).size()>0);
+        (*ptr).evolve(0.01);
+        if (s > (*ptr).size()) {
+
+          collision=true;
+
           if (choose >= (*ptr).size()) {
             choose--;
             assert(choose < u.size());
           }
           followPlanets = false;
-        }
-      // }
+        }}
+       }
+
+       if(collision){
+
+       }
       if (followOnePlanet) {
         camera.x = 400 - (*ptr)[choose].x;
         camera.y = 400 - (*ptr)[choose].y;
@@ -772,7 +782,7 @@ finestre_aperte:
         renderTexture.draw(text2);
       }
 
-      planet.setTexture((*ptr)[0].texture);
+      
 
       for (unsigned int i = 0; i < (*ptr).size(); ++i) {
         if (animation) {
@@ -780,7 +790,7 @@ finestre_aperte:
                                     sf::Color::Yellow));
         }
 
-        float r = u[i].r;
+        float r = (*ptr)[i].r;
 
         sf::FloatRect planetBounds((*ptr)[i].x + camera.x - r,
                                    (*ptr)[i].y + camera.y - r, 2 * r, 2 * r);
@@ -814,8 +824,9 @@ finestre_aperte:
       renderTexture.clear();
 
       // customView.move(camera.x, camera.y);
-
-      
+if((*ptr).size()==1){assert(collision==true);}
+      if(collision){
+      }
     }
 
   }  /// while window e evolvewindow
