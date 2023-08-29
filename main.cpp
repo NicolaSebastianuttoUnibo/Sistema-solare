@@ -209,8 +209,8 @@ finestre_aperte:
               evolvewindow.setVisible(true);
               firstwindow = false;
               animation = true;
-               (*ptr).findimportantplanet();
-            ///  (*ptr)=u;
+             //  (*ptr).findimportantplanet();
+            /// (*ptr)=u;
             //  for(int i=0; i<u.size();i++){(*ptr).push_back(u[i]);}
             
             }
@@ -711,14 +711,16 @@ finestre_aperte:
       renderTexture.clear();
 
       elapsed = clock.restart();
-      std::cout << std::to_string(1.0f / elapsed.asSeconds()) + "\n";
+  //    std::cout << std::to_string(1.0f / elapsed.asSeconds()) + "\n";
 
       evolvewindow.clear();
 
       // if (animation) {
       unsigned int s = (*ptr).size();
      assert( (*ptr).size()>0);
-        (*ptr).evolve(1);
+
+     for(int i=0;i<100;i++){
+        (*ptr).evolve(0.01);}
         if (s < (*ptr).size()) {
           if (choose >= (*ptr).size()) {
             choose--;

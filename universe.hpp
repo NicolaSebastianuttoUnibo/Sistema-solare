@@ -14,14 +14,16 @@ namespace U {
 
 struct Newton {
 // la forza è espressa in megaNewton (10^6)N
-long double f_x{};  // force x
-long double f_y{};  // force y
+ double f_x{};  // force x
+ double f_y{};  // force y
 void operator()(G::PlanetState const& a, G::PlanetState const& b);
-long double d_2(G::PlanetState const& a, G::PlanetState const& b);
+ double d_2(G::PlanetState const& a, G::PlanetState const& b);
  double r_2(G::PlanetState const& a, G::PlanetState const& b);
 
 
-const double G_{6.67430e-29*3600*3600};  /// costante G (MN*Mm^2/kg^2) our G = usual G*10^-18
+///1KK=10^27kg
+
+const double G_{6.67430*3.6*3.6*1e-5};  /// costante G (Mm^3/kg*h^2) 
 };
 
 
@@ -29,9 +31,14 @@ class FileUniverse;///forward declaration
 class Universe {
 Newton newton_;
 std::vector<G::PlanetState> copy_;
-G::PlanetState solve(G::PlanetState const &ps,long  double fx, long double fy,
+G::PlanetState solve(G::PlanetState const &ps,  double fx,  double fy,
                     double delta_t) const;
+G::PlanetState solve2(G::PlanetState const &ps,
+                    double delta_t) const;
+                    
 std::vector<G::PlanetState*> importantplanet_;
+std::vector<G::PlanetState*> notimportantplanet_;
+
 void check_Collision();
 
 
@@ -42,7 +49,7 @@ long double mechanic_energy_;
 long double initial_energy_;
 long double lost_energy_;
 long double total_energy_;
-long double calculateenergy();
+ double calculateenergy();
 void findimportantplanet();
 
 

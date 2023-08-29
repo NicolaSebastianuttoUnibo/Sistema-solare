@@ -1,3 +1,15 @@
+
+
+///check raggio e distanza al quadrato della struct Newton
+///check forza gravitazionale tra due pianeti
+///check evolve
+///check nearestPlanet
+///check file
+///check rimozione pianeta
+////check energia che rimane costante
+
+
+
 /*#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 #include <string>
