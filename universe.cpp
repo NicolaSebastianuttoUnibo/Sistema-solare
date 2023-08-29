@@ -47,7 +47,7 @@ void U::Universe::evolve(double delta_t) {
 
     std::pair< double,  double> forza =
         std::accumulate(copy_.begin(), copy_.end(), std::make_pair(0.0, 0.0),
-                        [this, it](std::pair<long double, long double> sums,
+                        [this, it](std::pair< double,  double> sums,
                                    const G::PlanetState &ci) {
                           newton_(*it, ci);
                           sums.first += newton_.f_x;
@@ -112,31 +112,31 @@ double VY = (((*it).m*(*it).v_y)  + ((*jt).m*(*jt).v_y));
 
 G::PlanetState p{M,X/M, Y/M, VX/M, VY/M, R, (  ((*it).m > (*jt).m) ? (*it).stringtexture : (*jt).stringtexture), (  ((*it).m > (*jt).m) ? (*it).texture : (*jt).texture)};
 //G::PlanetState p{0,0,0,0,0,0};
-double before = calculateenergy();
-int s = copy_.size();
+ calculateenergy();
+ double before=total_energy_;
+unsigned int s = copy_.size();
 
 
 
 auto kt = std::find(copy_.begin(), copy_.end(), (*it));
  assert(kt!=copy_.end());
-  int idx=std::distance(copy_.begin(),kt);
     copy_.erase(kt);
 
 
 // copy_=galaxy_;
 auto lt = std::find(copy_.begin(), copy_.end(), (*jt));
  assert(lt!=copy_.end());
- int idx2=std::distance(copy_.begin(),lt);
     copy_.erase(lt);
 
  copy_.push_back(p);
 
  assert (copy_.size()==s-1);
 assert(copy_.size()>0);
-double after = calculateenergy();
+ calculateenergy();
+ double after=total_energy_;
 
-
-// assert(before>=after);
+assert(true==false);
+ assert(before>=after);
 mechanic_energy_ = after;
 lost_energy_ = before - after;
 total_energy_ = before;
@@ -150,11 +150,25 @@ end:
 
 return;
 }
-double U::Universe::calculateenergy(){
- return std::accumulate (galaxy_.begin(), galaxy_.end(),0,[](double r, const G::PlanetState &gi){
-   double v=(gi).v_x*(gi).v_x + (gi).v_y*(gi).v_y ;
-   r+=(0.5*(gi).m*v);
+
+
+
+void  U::Universe::calculateenergy(){
+ cinetic_energy_= std::accumulate (galaxy_.begin(), galaxy_.end(),0,[](double r, const G::PlanetState &gi){ 
+
+   r+=(1e5*0.5*(gi).m*std::hypot(gi.v_x,gi.v_y)*std::hypot(gi.v_x,gi.v_y));
    return r;
    });
 
+    potential_energy_ = -std::accumulate(galaxy_.begin(), galaxy_.end(), 0, [this](double r, const G::PlanetState &gi) {
+    r += (std::accumulate(galaxy_.begin(), galaxy_.end(), 0, [this, gi](double s, const G::PlanetState &hi) {
+        if (!(gi == hi)) {
+            s += (1e5*newton_.G_ * gi.m * hi.m / (newton_.d_2(gi, hi)));
+        }
+        return s;
+    }));
+    return r;
+});
+mechanic_energy_=cinetic_energy_+potential_energy_;
+total_energy_=lost_energy_+mechanic_energy_;
 }

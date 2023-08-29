@@ -1,7 +1,7 @@
-#include "Button.hpp"
+#include "Graphic.hpp"
 
 
-Button::Button(const sf::Vector2f& position, const sf::Vector2f& size, const std::string& text,
+gr::Button::Button(const sf::Vector2f& position, const sf::Vector2f& size, const std::string& text,
               const sf::Color& buttonColor, const sf::Color& textColor, const sf::Font& font, bool b)  {
  show_=b;
 
@@ -23,7 +23,7 @@ Button::Button(const sf::Vector2f& position, const sf::Vector2f& size, const std
 }
 
 
-void Button::draw(sf::RenderWindow& window) {
+void gr::Button::draw(sf::RenderWindow& window) {
    if(show_){
    window.draw(shape_);
    window.draw(buttonText_);
@@ -31,23 +31,23 @@ void Button::draw(sf::RenderWindow& window) {
 }
 
 
-bool Button::isClicked(const sf::Vector2i& mousePosition) {
+bool gr::Button::isClicked(const sf::Vector2i& mousePosition) {
    sf::FloatRect buttonBounds = shape_.getGlobalBounds();
    return buttonBounds.contains(sf::Vector2f(mousePosition));
 }
 
 
-void Button::hide(){
+void gr::Button::hide(){
    show_=false;
 }
-void Button::show(){
+void gr::Button::show(){
    show_=true;
 }
-bool Button::isVisible(){
+bool gr::Button::isVisible(){
    return show_;
 }
 
 
-void Button::setText(std::string s){
+void gr::Button::setText(std::string s){
    buttonText_.setString(s);
 }

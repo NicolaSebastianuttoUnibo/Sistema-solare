@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-#include "texturemanagement.hpp"
+#include "Graphic.hpp"
 #include "universe.hpp"
 
 bool onlyspaces(const std::string &s) {

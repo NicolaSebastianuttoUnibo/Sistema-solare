@@ -45,11 +45,14 @@ void check_Collision();
 public:
   std::vector<G::PlanetState> galaxy_;
 
-long double mechanic_energy_;
-long double initial_energy_;
-long double lost_energy_;
-long double total_energy_;
- double calculateenergy();
+ long double initial_energy_;
+ long double potential_energy_;
+ long double cinetic_energy_;
+ long double mechanic_energy_;
+ long double lost_energy_;
+ long double total_energy_;
+
+ void calculateenergy();
 void findimportantplanet();
 
 
