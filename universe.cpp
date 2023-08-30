@@ -7,7 +7,7 @@
 #include <cassert>
 #include <numeric>
 #include <iostream>
-#include <iomanip>
+#include <iomanip>1024
 
 
 
@@ -16,7 +16,19 @@
 
 
 
-U::Universe::Universe(U::Newton const &newton) : newton_{newton} {}
+U::Universe::Universe(U::Newton const &newton) : newton_{newton} {
+      mpfr_init2(initial_energy_,1024);
+        mpfr_init2(cinetic_energy_,1024);
+        mpfr_init2(potential_energy_,1024);
+        mpfr_init2(mechanic_energy_,1024);
+        mpfr_init2(lost_energy_,1024);
+        mpfr_init2(total_energy_,1024);
+   
+
+
+
+
+}
 unsigned int U::Universe::size() const { return galaxy_.size(); }
 
 void U::Universe::push_back(G::PlanetState const &ps) { galaxy_.push_back(ps); }
@@ -101,6 +113,11 @@ void U::Universe::check_Collision(){
   for (auto it = copy_.begin(); it < copy_.end()-1; ++it) {
   for (auto jt = it+1; jt < copy_.end(); ++jt){
 
+//  double before;
+calculateenergy();
+  //  before=total_energy_;
+
+unsigned int s = copy_.size();
 if (newton_.d_2((*it),(*jt))<=newton_.r_2 ((*it),(*jt))){
 double M = ((*it).m+(*jt).m);
 double X = ((*it).m*(*it).x+(*jt).m*(*jt).x);
@@ -112,8 +129,11 @@ double VY = (((*it).m*(*it).v_y)  + ((*jt).m*(*jt).v_y));
 
 G::PlanetState p{M,X/M, Y/M, VX/M, VY/M, R, (  ((*it).m > (*jt).m) ? (*it).stringtexture : (*jt).stringtexture), (  ((*it).m > (*jt).m) ? (*it).texture : (*jt).texture)};
 //G::PlanetState p{0,0,0,0,0,0};
+ 
+//  double after{0};
+ 
  calculateenergy();
- double before=total_energy_;
+  // before=total_energy_;
 unsigned int s = copy_.size();
 
 
@@ -132,16 +152,14 @@ auto lt = std::find(copy_.begin(), copy_.end(), (*jt));
 
  assert (copy_.size()==s-1);
 assert(copy_.size()>0);
- calculateenergy();
- double after=total_energy_;
-
-assert(true==false);
- assert(before>=after);
-mechanic_energy_ = after;
-lost_energy_ = before - after;
-total_energy_ = before;
 
  galaxy_=copy_;
+ calculateenergy();
+  // after=total_energy_;
+//  assert(before>=after);
+// lost_energy_ =before-after;
+
+
 goto end;
   }
 }
@@ -151,24 +169,125 @@ end:
 return;
 }
 
+void U::Universe::calculateenergy() {
+
+mpfr_t sum;
+mpfr_init2(sum, 1024);
+    mpfr_set_zero(sum, 0);  // Inizializza la somma a 0
+
+    for (const G::PlanetState &gi : galaxy_) {
+
+        mpfr_t mass;
+mpfr_init2(mass, 1024);
+        mpfr_init_set_d(mass, gi.m, MPFR_RNDN);
 
 
-void  U::Universe::calculateenergy(){
- cinetic_energy_= std::accumulate (galaxy_.begin(), galaxy_.end(),0,[](double r, const G::PlanetState &gi){ 
 
-   r+=(1e5*0.5*(gi).m*std::hypot(gi.v_x,gi.v_y)*std::hypot(gi.v_x,gi.v_y));
-   return r;
-   });
+        mpfr_t vx;
+mpfr_init2(vx, 1024);
+        mpfr_init_set_d(vx, gi.v_x, MPFR_RNDN);
 
-    potential_energy_ = -std::accumulate(galaxy_.begin(), galaxy_.end(), 0, [this](double r, const G::PlanetState &gi) {
-    r += (std::accumulate(galaxy_.begin(), galaxy_.end(), 0, [this, gi](double s, const G::PlanetState &hi) {
-        if (!(gi == hi)) {
-            s += (1e5*newton_.G_ * gi.m * hi.m / (newton_.d_2(gi, hi)));
+        mpfr_t vy;
+mpfr_init2(vy, 1024);
+        mpfr_init_set_d(vy, gi.v_y, MPFR_RNDN);
+
+ mpfr_mul(vx, vx, vx, MPFR_RNDN);// vx*vx
+ mpfr_mul(vy, vy, vy, MPFR_RNDN); //vy*vy
+ mpfr_add(vx, vx, vy, MPFR_RNDN);//vx*vx+vy*vy=v*v
+ mpfr_mul(mass, mass, vx, MPFR_RNDN); //m*v*v
+ mpfr_mul_d(mass, mass, 0.5, MPFR_RNDN);//0.5*m*v*v
+
+
+
+mpfr_add(sum, sum, mass, MPFR_RNDN);
+
+        mpfr_clear(mass);
+        mpfr_clear(vx);
+        mpfr_clear(vy);
+
+    }
+
+    mpfr_set(cinetic_energy_, sum, MPFR_RNDN); // Assegna il valore di sum a cinetic_energy_
+
+  mpfr_set_zero(sum, 0); 
+
+    for (const G::PlanetState &gi : galaxy_) {
+    for (const G::PlanetState &hi : galaxy_) {
+if (!(gi == hi)) {
+
+      mpfr_t G;
+      mpfr_init2(G, 1024);
+      mpfr_init_set_d(G, newton_.G_, MPFR_RNDN);
+
+      mpfr_t m;
+      mpfr_init2(m, 1024);
+      mpfr_init_set_d(m, gi.m, MPFR_RNDN);
+
+      mpfr_t M;
+      mpfr_init2(M, 1024);
+      mpfr_init_set_d(M, hi.m, MPFR_RNDN);
+
+
+      mpfr_t x;
+      mpfr_init2(x, 1024);
+      mpfr_init_set_d(x, gi.x, MPFR_RNDN);
+
+      mpfr_t X;
+      mpfr_init2(X, 1024);
+      mpfr_init_set_d(X, hi.x, MPFR_RNDN);
+
+
+          mpfr_t y;
+      mpfr_init2(y, 1024);
+      mpfr_init_set_d(y, gi.y, MPFR_RNDN);
+
+      mpfr_t Y;
+      mpfr_init2(Y, 1024);
+      mpfr_init_set_d(Y, hi.y, MPFR_RNDN);
+
+      mpfr_sub(x, x, X, MPFR_RNDN);
+      mpfr_mul(x, x, x, MPFR_RNDN);
+      mpfr_sub(y, y, Y, MPFR_RNDN);
+      mpfr_mul(y, y, y, MPFR_RNDN);
+
+       mpfr_add(x, x, y, MPFR_RNDN);
+
+
+
+      mpfr_sqrt(x, x, MPFR_RNDN);
+
+      mpfr_mul(G, G, m, MPFR_RNDN);
+      mpfr_mul(G, G, M, MPFR_RNDN);
+     mpfr_div(G, G, x, MPFR_RNDN);
+
+
+mpfr_add(sum, sum, G, MPFR_RNDN);
+
+        mpfr_clear(x);
+        mpfr_clear(X);
+        mpfr_clear(y);
+        mpfr_clear(Y);
+        mpfr_clear(m);
+        mpfr_clear(M);
+        mpfr_clear(G);
+
+
         }
-        return s;
-    }));
-    return r;
-});
-mechanic_energy_=cinetic_energy_+potential_energy_;
-total_energy_=lost_energy_+mechanic_energy_;
+    }}
+
+
+    mpfr_set(potential_energy_, sum, MPFR_RNDN); 
+std::cout<<mpfr_get_d(cinetic_energy_, MPFR_RNDN)<<",";
+
+    mpfr_set_zero(sum, 0); 
+    mpfr_add(sum, cinetic_energy_, potential_energy_, MPFR_RNDN);
+    mpfr_set(mechanic_energy_, sum, MPFR_RNDN); 
+    mpfr_add(sum, mechanic_energy_, lost_energy_, MPFR_RNDN);
+    mpfr_set(total_energy_, sum, MPFR_RNDN); 
+    
+        mpfr_clear(sum);
+
+prova_=mpfr_get_d(total_energy_, MPFR_RNDN);
+
+
 }

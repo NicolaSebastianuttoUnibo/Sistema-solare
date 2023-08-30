@@ -176,9 +176,10 @@ windows_open:
             } 
             else {
 
-             (*ptr).lost_energy_=0;
+            //  (*ptr).lost_energy_=0.;
               (*ptr).calculateenergy();
-              (*ptr).initial_energy_=(*ptr).total_energy_;
+    mpfr_set( (*ptr).initial_energy_, (*ptr).total_energy_, MPFR_RNDN); 
+    mpfr_set((*ptr).lost_energy_, (*ptr).total_energy_, MPFR_RNDN); 
 
 
               next_button.hide();
@@ -761,7 +762,8 @@ for(int i=0;i<100;i++){
       }
 ///drawing text
  std::string output;
-
+  //  assert((*ptr).cinetic_energy_>=0);
+  //  assert((*ptr).potential_energy_<=0);
         std::ostringstream oss;
         oss << std::scientific
             << std::setprecision(20);
@@ -774,13 +776,49 @@ if(followOnePlanet){
 
         
 }else {
-  oss       << "\ninitial energy=" << (*ptr).initial_energy_
-            << "\ntotal energy=" << (*ptr).total_energy_
-            << "\nmechanic energy=" << (*ptr).mechanic_energy_
-            << "\ncinetic energy=" << (*ptr).cinetic_energy_
-            << "\npotential energy=" << (*ptr).potential_energy_
-            << "\nlost energy=" << (*ptr).lost_energy_;
-  
+  //  oss       << "\ninitial energy=" << (*ptr).initial_energy_
+  //           << "\ntotal energy=" << (*ptr).total_energy_
+  //           << "\nmechanic energy=" << (*ptr).mechanic_energy_
+  //           << "\ncinetic energy=" << (*ptr).cinetic_energy_
+  //           << "\npotential energy=" << (*ptr).potential_energy_
+  //           << "\nlost energy=" << (*ptr).lost_energy_;
+
+size_t str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).initial_energy_);
+char *str_initial_energy = new char[str_size + 1];
+mpfr_snprintf(str_initial_energy, str_size + 1, "%.Rf", (*ptr).initial_energy_);
+std::string result_initial_energy(str_initial_energy);
+output += ("\n"+result_initial_energy + "\n");
+delete[] str_initial_energy;
+
+str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).total_energy_);
+char *str_total_energy = new char[str_size + 1];
+mpfr_snprintf(str_total_energy, str_size + 1, "%.Rf", (*ptr).total_energy_);
+std::string result_total_energy(str_total_energy);
+output += (result_total_energy + "\n");
+delete[] str_total_energy;
+
+  str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).cinetic_energy_);
+char *str_cinetic_energy = new char[str_size + 1];
+mpfr_snprintf(str_cinetic_energy, str_size + 1, "%.Rf", (*ptr).cinetic_energy_);
+std::string result_cinetic_energy(str_cinetic_energy);
+output += (result_cinetic_energy + "\n");
+delete[] str_cinetic_energy;
+
+  str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).potential_energy_);
+char *str_potential_energy = new char[str_size + 1];
+mpfr_snprintf(str_potential_energy, str_size + 1, "%.Rf", (*ptr).potential_energy_);
+std::string result_potential_energy(str_potential_energy);
+output += (result_potential_energy + "\n");
+delete[] str_potential_energy;
+
+  str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).mechanic_energy_);
+char *str_mechanic_energy_ = new char[str_size + 1];
+mpfr_snprintf(str_mechanic_energy_, str_size + 1, "%.Rf", (*ptr).mechanic_energy_);
+std::string result_mechanic_energy_(str_mechanic_energy_);
+output += (result_mechanic_energy_ + "\n");
+delete[] str_mechanic_energy_;
+
+
 }
 output += oss.str();
 
