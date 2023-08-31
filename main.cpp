@@ -64,6 +64,13 @@ std::vector<std::string> choice = {"Set\nmass(M)",     "Set\npos(P)",
   std::shared_ptr<gr::TM> tm;
 
   std::string response;
+  int month;
+  int year;
+  int day{1};
+std::vector<std::string> months = {"January","Febraury","March","April","May","June","July","August","September","Optober","November","December"};
+
+
+
   sf::Clock clock;
   sf::Time elapsed;
 
@@ -72,12 +79,24 @@ std::vector<std::string> choice = {"Set\nmass(M)",     "Set\npos(P)",
       throw std::runtime_error("font non caricato");
     }
 
+std::cout<<"Which year is this?\n";
+std::cin>>year;
+ if (!std::cin||year<0) {
+            throw std::runtime_error("Year not valid");
+        }
+std::cout<<"Which month is this?(1-12)\n";
+std::cin>>month;
+ if (!std::cin||month<=0||month>12) {
+            throw std::runtime_error("Month not valid");
+        }
+
     std::cout << "Do you want to open an existing file (o) or do you want to "
                  "create a new one (c)?";
     std::cin >> response;
     if (response == "o" || response == "open") {
       std::cout << "\nChoose the file you want to open (WITHOUT '.txt')\n";
       std::cin >> response;
+     
 
       ptr = std::make_shared<U::FileUniverse>(newton, response, true);
 
@@ -178,9 +197,9 @@ windows_open:
 
             //  (*ptr).lost_energy_=0.;
               (*ptr).calculateenergy();
-    mpfr_set( (*ptr).initial_energy_, (*ptr).total_energy_, MPFR_RNDN); 
-    mpfr_set((*ptr).lost_energy_, (*ptr).total_energy_, MPFR_RNDN); 
+              (*ptr).setInitialEnergy();
 
+  
 
               next_button.hide();
               data_button.hide();
@@ -689,15 +708,16 @@ gr::drawing::drawPlanet((*ptr)[planetIndex],camera,&sf::Color::White,window,visi
 
       evolvewindow.clear();
       renderTexture.clear();
-  
-             (*ptr).calculateenergy();
-     
+  // if(day%50){
+  //            (*ptr).calculateenergy();
+  // }
     
 
 
 
        if (animation) {///the animation is on play
-   
+   day++;///
+
 for(int i=0;i<100;i++){
     unsigned int s = (*ptr).size();
      assert( (*ptr).size()>0);
@@ -768,7 +788,7 @@ for(int i=0;i<100;i++){
         oss << std::scientific
             << std::setprecision(20);
 
-            output="FPS: "+std::to_string(1.0f / elapsed.asSeconds());
+            output=months[month-1]+" "+std::to_string(year)+"\nFPS: "+std::to_string(1.0f / elapsed.asSeconds());
 if(followOnePlanet){
         oss << "\nm=" << (*ptr)[planetIndex].m
             << "\nvx=" << (*ptr)[planetIndex].v_x << "\nvy=" << (*ptr)[planetIndex].v_y
@@ -783,40 +803,47 @@ if(followOnePlanet){
   //           << "\npotential energy=" << (*ptr).potential_energy_
   //           << "\nlost energy=" << (*ptr).lost_energy_;
 
-size_t str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).initial_energy_);
-char *str_initial_energy = new char[str_size + 1];
-mpfr_snprintf(str_initial_energy, str_size + 1, "%.Rf", (*ptr).initial_energy_);
-std::string result_initial_energy(str_initial_energy);
-output += ("\n"+result_initial_energy + "\n");
-delete[] str_initial_energy;
+// size_t str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).initial_energy_);
+// char *str_initial_energy = new char[str_size + 1];
+// mpfr_snprintf(str_initial_energy, str_size + 1, "%.Rf", (*ptr).initial_energy_);
+// std::string result_initial_energy(str_initial_energy);
+// output += ("\n"+result_initial_energy + "\n");
+// delete[] str_initial_energy;
 
-str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).total_energy_);
-char *str_total_energy = new char[str_size + 1];
-mpfr_snprintf(str_total_energy, str_size + 1, "%.Rf", (*ptr).total_energy_);
-std::string result_total_energy(str_total_energy);
-output += (result_total_energy + "\n");
-delete[] str_total_energy;
+// str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).total_energy_);
+// char *str_total_energy = new char[str_size + 1];
+// mpfr_snprintf(str_total_energy, str_size + 1, "%.Rf", (*ptr).total_energy_);
+// std::string result_total_energy(str_total_energy);
+// output += (result_total_energy + "\n");
+// delete[] str_total_energy;
 
-  str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).cinetic_energy_);
-char *str_cinetic_energy = new char[str_size + 1];
-mpfr_snprintf(str_cinetic_energy, str_size + 1, "%.Rf", (*ptr).cinetic_energy_);
-std::string result_cinetic_energy(str_cinetic_energy);
-output += (result_cinetic_energy + "\n");
-delete[] str_cinetic_energy;
+//   str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).cinetic_energy_);
+// char *str_cinetic_energy = new char[str_size + 1];
+// mpfr_snprintf(str_cinetic_energy, str_size + 1, "%.Rf", (*ptr).cinetic_energy_);
+// std::string result_cinetic_energy(str_cinetic_energy);
+// output += (result_cinetic_energy + "\n");
+// delete[] str_cinetic_energy;
 
-  str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).potential_energy_);
-char *str_potential_energy = new char[str_size + 1];
-mpfr_snprintf(str_potential_energy, str_size + 1, "%.Rf", (*ptr).potential_energy_);
-std::string result_potential_energy(str_potential_energy);
-output += (result_potential_energy + "\n");
-delete[] str_potential_energy;
+//   str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).potential_energy_);
+// char *str_potential_energy = new char[str_size + 1];
+// mpfr_snprintf(str_potential_energy, str_size + 1, "%.Rf", (*ptr).potential_energy_);
+// std::string result_potential_energy(str_potential_energy);
+// output += (result_potential_energy + "\n");
+// delete[] str_potential_energy;
 
-  str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).mechanic_energy_);
-char *str_mechanic_energy_ = new char[str_size + 1];
-mpfr_snprintf(str_mechanic_energy_, str_size + 1, "%.Rf", (*ptr).mechanic_energy_);
-std::string result_mechanic_energy_(str_mechanic_energy_);
-output += (result_mechanic_energy_ + "\n");
-delete[] str_mechanic_energy_;
+//   str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).mechanic_energy_);
+// char *str_mechanic_energy_ = new char[str_size + 1];
+// mpfr_snprintf(str_mechanic_energy_, str_size + 1, "%.Rf", (*ptr).mechanic_energy_);
+// std::string result_mechanic_energy_(str_mechanic_energy_);
+// output += (result_mechanic_energy_ + "\n");
+// delete[] str_mechanic_energy_;
+
+//   str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).lost_energy_);
+// char *str_lost_energy_ = new char[str_size + 1];
+// mpfr_snprintf(str_lost_energy_, str_size + 1, "%.Rf", (*ptr).lost_energy_);
+// std::string result_lost_energy_(str_lost_energy_);
+// output += (result_lost_energy_ + "\n");
+// delete[] str_lost_energy_;
 
 
 }
@@ -867,8 +894,13 @@ output += oss.str();
 
       evolvewindow.display();
 
+      if(day%1440==0){
+        if(month<12){
+          month++;
+        }
+        else {month=1;year++;}
+      }
       
-
     
     }
 

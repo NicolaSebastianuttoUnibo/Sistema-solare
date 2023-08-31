@@ -59,22 +59,23 @@ double prova_;
 
 
 
-    // // Distruttore
-    // ~Universe() {
-    //     mpfr_clear(initial_energy_);
-    //     mpfr_clear(cinetic_energy_);
-    //     mpfr_clear(potential_energy_);
-    //     mpfr_clear(mechanic_energy_);
-    //     mpfr_clear(lost_energy_);
-    //     mpfr_clear(total_energy_);
-    // }
+    // Distruttore
+    ~Universe() {
+        mpfr_clear(initial_energy_);
+        mpfr_clear(cinetic_energy_);
+        mpfr_clear(potential_energy_);
+        mpfr_clear(mechanic_energy_);
+        mpfr_clear(lost_energy_);
+        mpfr_clear(total_energy_);
+    }
 
 
 
 
 
  void calculateenergy();
-void findimportantplanet();
+ void setInitialEnergy();
+
 
 
 
