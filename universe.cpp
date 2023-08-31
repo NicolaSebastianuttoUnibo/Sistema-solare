@@ -38,7 +38,7 @@ auto it = std::find(galaxy_.begin(), galaxy_.end(), ps);
  if (it != galaxy_.end()) {
   galaxy_.erase(it);
 }
-}
+}*/
 void U::Universe::findimportantplanet() {
   copy_=galaxy_;
 importantplanet_.clear();
@@ -59,7 +59,7 @@ for (auto it = copy_.begin(); it < copy_.end(); ++it) {
 }
 assert(importantplanet_.size()%2==0);
 }
-std::vector<G::PlanetState> const &U::Universe::state() const {
+/*std::vector<G::PlanetState> const &U::Universe::state() const {
 return galaxy_;
 }
 
@@ -229,11 +229,11 @@ double U::Universe::calculateenergy(){
 
 
 */
-/*
 
 
 
-int U::Universe::findNearestPlanet(sf::Vector2i point) {
+
+/*int U::Universe::findNearestPlanet(sf::Vector2i point) {
   auto compareDistance = [&point](const G::PlanetState &planet1,
                                   const G::PlanetState &planet2) {
     float distance1 = std::hypot(planet1.x - point.x, planet1.y - point.y);
@@ -260,9 +260,9 @@ G::PlanetState &U::Universe::operator[](unsigned int index) {
 const G::PlanetState &U::Universe::operator[](unsigned int index) const {
   assert(index < galaxy_.size());
   return galaxy_[index];
-}
+}*/
 
-*/
+
 
 
 

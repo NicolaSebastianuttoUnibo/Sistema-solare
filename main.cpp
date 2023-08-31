@@ -62,6 +62,7 @@ std::vector<sf::Vertex> drawArrow(sf::Vector2f start, sf::Vector2f punta,
 
 int main() {
   U::Newton newton{};
+  
 
   
   bool selecting{false};

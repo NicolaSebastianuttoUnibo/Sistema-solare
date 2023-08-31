@@ -31,5 +31,12 @@ if (BUILD_TESTING)
   add_executable(newton.t newton.test.cpp  newton.cpp universe.cpp fileuniverse.cpp)
   # aggiungi l'eseguibile statistics.t alla lista dei test
   add_test(NAME newton.t COMMAND newton.t)
-
+  add_executable(distance distance.test.cpp  newton.cpp universe.cpp fileuniverse.cpp)
+  add_test(NAME distance COMMAND distance.t)
+  add_executable(nearest nearest.test.cpp  newton.cpp universe.cpp fileuniverse.cpp)
+  add_test(NAME nearest COMMAND nearest.t)
+  add_executable(energy energy.test.cpp  newton.cpp universe.cpp fileuniverse.cpp)
+  add_test(NAME energy COMMAND energy.t)
+  add_executable(collision collision.test.cpp  newton.cpp universe.cpp fileuniverse.cpp)
+  add_test(NAME collision COMMAND collision.t)
 endif()

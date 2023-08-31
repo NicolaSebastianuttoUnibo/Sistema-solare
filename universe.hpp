@@ -51,6 +51,17 @@ long double lost_energy_;
 long double total_energy_;
  double calculateenergy();
 void findimportantplanet();
+/*double getInitialEnergy() const {
+        return initial_energy_;
+    }
+
+    double getMechanicEnergy() const {
+        return mechanic_energy_;
+    }
+
+    double getTotalEnergy() const {
+        return total_energy_;
+    }*/
 
 
 
