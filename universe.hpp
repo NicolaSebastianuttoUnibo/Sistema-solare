@@ -5,8 +5,7 @@
 #include <vector>
 #include <cassert>
 
-
-
+#include <mpfr.h>
 #include "newton.hpp"
 namespace U {
 
@@ -23,7 +22,7 @@ void operator()(G::PlanetState const& a, G::PlanetState const& b);
 
 ///1KK=10^27kg
 
-const double G_{6.67430*3.6*3.6*1e-5};  /// costante G (Mm^3/kg*h^2) 
+const double G_{6.67430*3.6*3.6*1e-5};  /// costante G (Mm^3/kg*h^2) s
 };
 
 
@@ -45,23 +44,38 @@ void check_Collision();
 public:
   std::vector<G::PlanetState> galaxy_;
 
-long double mechanic_energy_;
-long double initial_energy_;
-long double lost_energy_;
-long double total_energy_;
- double calculateenergy();
-void findimportantplanet();
-/*double getInitialEnergy() const {
-        return initial_energy_;
+
+
+
+mpfr_t initial_energy_;
+mpfr_t potential_energy_;
+mpfr_t cinetic_energy_;
+mpfr_t mechanic_energy_;
+mpfr_t lost_energy_;
+mpfr_t total_energy_;
+double prova_;
+
+
+
+
+
+    // Distruttore
+    ~Universe() {
+        mpfr_clear(initial_energy_);
+        mpfr_clear(cinetic_energy_);
+        mpfr_clear(potential_energy_);
+        mpfr_clear(mechanic_energy_);
+        mpfr_clear(lost_energy_);
+        mpfr_clear(total_energy_);
     }
 
-    double getMechanicEnergy() const {
-        return mechanic_energy_;
-    }
 
-    double getTotalEnergy() const {
-        return total_energy_;
-    }*/
+
+
+
+ void calculateenergy();
+ void setInitialEnergy();
+
 
 
 
@@ -98,8 +112,6 @@ class FileUniverse : public Universe {
   std::vector<G::PlanetState> copy_;
 
 
-double ie(){return initial_energy_;}
-std::vector<G::PlanetState> rg(){return galaxy_;}
 
  public:
 
