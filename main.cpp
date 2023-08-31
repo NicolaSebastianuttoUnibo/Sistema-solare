@@ -1,3 +1,4 @@
+
 #include <SFML/Graphics.hpp>
 #include <algorithm>
 #include <cassert>
@@ -12,80 +13,46 @@
 #include <string>
 #include <vector>
 
-#include "Button.hpp"
-#include "texturemanagement.hpp"
+#include "Graphic.hpp"
 #include "universe.hpp"
 
-std::vector<sf::Vertex> drawArrow(sf::Vector2f start, sf::Vector2f punta,
-                                  sf::Vector2f direction, const sf::Color &c) {
-  std::vector<sf::Vertex> arrow(6);  // Creazione di un vettore di vertici
-
-  arrow[0] = sf::Vertex(start);
-  arrow[0].color = c;
-  arrow[1] = sf::Vertex(punta);
-  arrow[1].color = c;
-
-  float rotationAngle = 160.0f;
-  sf::Vector2f firstvector(0.1f * direction);
-  sf::Transform transformation;
-  transformation.rotate(rotationAngle);
-  firstvector = transformation.transformPoint(firstvector);
-
-  sf::Transform translate;
-  translate.translate(punta);
-  firstvector = translate.transformPoint(firstvector);
-
-  float angle = 200.0f;
-  sf::Vector2f secondvector(0.1f * direction);
-
-  sf::Transform transf;
-  transf.rotate(angle);
-  secondvector = transf.transformPoint(secondvector);
-
-  secondvector = translate.transformPoint(secondvector);
-
-  arrow[2] = sf::Vertex(firstvector);
-  arrow[2].color = c;
-
-  arrow[3] = sf::Vertex(punta);
-  arrow[3].color = c;
-
-  arrow[4] = sf::Vertex(punta);
-  arrow[4].color = c;
-
-  arrow[5] = sf::Vertex(secondvector);
-  arrow[5].color = c;
-
-  // Restituzione del vettore di vertici
-  return arrow;
-}
 
 int main() {
   U::Newton newton{};
-  
 
-  
-  bool selecting{false};
-  bool selected;
-  bool firstwindow{true};
-  bool choosingvalue{false};
-  bool followPlanets;
-  bool followOnePlanet;
-  std::vector<G::PlanetState *> planetsfollowing;
+std::vector<sf::Color> colors = {
+    sf::Color(255,255,0), sf::Color(255,0,255), sf::Color(0,255,255), sf::Color(255,100,0),
+    sf::Color(100,0,255), sf::Color(100,255,0), sf::Color(100,255,0), sf::Color(255,0,100)};
 
-  bool createvector;
-  bool animation{false};
-  std::string input;
-  unsigned int choose{0};
-  unsigned int index;
-  unsigned int choose2{0};
-  std::vector<sf::VertexArray> traj(sf::LineStrip);
 
-  std::vector<std::string> choice = {"Set\nmass(M)",     "Set\npos(P)",
+
+  bool selecting{false}; ///the planet is surrounded by a white outline
+  bool selected{false};  ///the planet is surrounded by a yellow outline
+  bool choosingvalue{false};  ///the planet is surrounded by a red outline
+
+  bool firstwindow{true}; ///the first window is shown
+
+  bool followOnePlanet; ///during the animation the camera follows one planet
+  bool followPlanets;  /// during theanimation the camera follows the centroid of a planets' set
+  std::vector<G::PlanetState *> planetsfollowing;  ///vector of the planets' set
+  bool createvector;  /// indicates if you are currently creating a set of planets.
+  bool animation{false};  //indicates if the animation is on play(true) or pause(false)
+
+ unsigned int planetIndex{0};  /// Index indicating the position of the planet within the vector.
+
+  unsigned int var{0}; 
+   ///Fist window: choose which variable of the planet you want to change
+   ///Second window: indicating the position of the planet in the planets'set
+
+  unsigned int index;  ///index of the nearest planet from the mouse
+
+sf::VertexArray traj(sf::Points); ///planet trajectories
+
+std::vector<std::string> choice = {"Set\nmass(M)",     "Set\npos(P)",
                                      "Set\nvelocity(V)", "Set\nradius(R)",
                                      "Set\ntexture(T)",  "Delete(X)"};
 
-  sf::Vector2<double> camera{400, 400};  // camera
+  sf::Vector2f camera{400, 400};  // camera position
 
   sf::Font font;
   sf::CircleShape planet(0.f);
@@ -94,9 +61,16 @@ int main() {
   sf::Text text2;
 
   std::shared_ptr<U::FileUniverse> ptr;
-  std::shared_ptr<TM> vettoreditexture;
+  std::shared_ptr<gr::TM> tm;
 
   std::string response;
+  int month;
+  int year;
+  int day{1};
+std::vector<std::string> months = {"January","Febraury","March","April","May","June","July","August","September","Optober","November","December"};
+
+
+
   sf::Clock clock;
   sf::Time elapsed;
 
@@ -105,16 +79,28 @@ int main() {
       throw std::runtime_error("font non caricato");
     }
 
+std::cout<<"Which year is this?\n";
+std::cin>>year;
+ if (!std::cin||year<0) {
+            throw std::runtime_error("Year not valid");
+        }
+std::cout<<"Which month is this?(1-12)\n";
+std::cin>>month;
+ if (!std::cin||month<=0||month>12) {
+            throw std::runtime_error("Month not valid");
+        }
+
     std::cout << "Do you want to open an existing file (o) or do you want to "
                  "create a new one (c)?";
     std::cin >> response;
     if (response == "o" || response == "open") {
       std::cout << "\nChoose the file you want to open (WITHOUT '.txt')\n";
       std::cin >> response;
+     
 
       ptr = std::make_shared<U::FileUniverse>(newton, response, true);
 
-      vettoreditexture = std::make_shared<TM>("Texture", ptr.get());
+      tm = std::make_shared<gr::TM>("Texture", ptr.get());
 
     }
 
@@ -124,23 +110,21 @@ int main() {
 
       ptr = std::make_shared<U::FileUniverse>(newton, response, false);
 
-      vettoreditexture = std::make_shared<TM>("Texture", ptr.get());
+      tm = std::make_shared<gr::TM>("Texture", ptr.get());
 
     }
 
     else {
-      throw std::runtime_error("Invalid input");
+      throw std::runtime_error("Invalid input. Restart.");
     }
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << "\n";
     return 1;
   }
 
-  U::FileUniverse u = *ptr;
-  TM tm = *vettoreditexture;
-  if (u.size() > 0) {
-    camera.x = -u[0].x + 400;
-    camera.y = -u[0].y + 400;
+  if ((*ptr).size() > 0) {
+    camera.x = -(*ptr)[0].x + 400;
+    camera.y = -(*ptr)[0].y + 400;
   }
 
   sf::RenderWindow window(sf::VideoMode(800, 800), response + ".txt");
@@ -148,7 +132,6 @@ int main() {
   window.setFramerateLimit(48);
   sf::RenderWindow evolvewindow(sf::VideoMode(800, 800),
                                 "animation of " + response + ".txt");
-  sf::FloatRect visibleArea2(0, 0, window.getSize().x, window.getSize().y);
   evolvewindow.setFramerateLimit(48);
 
   sf::RenderTexture renderTexture;
@@ -156,22 +139,22 @@ int main() {
 
   evolvewindow.setVisible(false);
 
-  Button save_button(sf::Vector2f(0, 0), sf::Vector2f(150, 90), "Save",
+ gr::Button save_button(sf::Vector2f(0, 0), sf::Vector2f(150, 90), "Save",
                      sf::Color::Yellow, sf::Color::Black, font, true);
-  Button add_button(sf::Vector2f(160, 0), sf::Vector2f(150, 90), "Add\nplanet",
+ gr::Button add_button(sf::Vector2f(160, 0), sf::Vector2f(150, 90), "Add\nplanet",
                     sf::Color::Yellow, sf::Color::Black, font, true);
-  Button select_button(sf::Vector2f(320, 0), sf::Vector2f(150, 90),
+ gr::Button select_button(sf::Vector2f(320, 0), sf::Vector2f(150, 90),
                        "Select\nplanet", sf::Color::Yellow, sf::Color::Black,
                        font, true);
-  Button next_button(sf::Vector2f(480, 0), sf::Vector2f(150, 90),
+ gr::Button next_button(sf::Vector2f(480, 0), sf::Vector2f(150, 90),
                      "Next\nplanet", sf::Color::Yellow, sf::Color::Black, font,
                      false);
-  Button data_button(sf::Vector2f(480, 90), sf::Vector2f(150, 90), "Mass",
+ gr::Button data_button(sf::Vector2f(480, 90), sf::Vector2f(150, 90), "Mass",
                      sf::Color::Yellow, sf::Color::Black, font, false);
-  Button evolve_button(sf::Vector2f(640, 0), sf::Vector2f(150, 90), "Animation",
+ gr::Button evolve_button(sf::Vector2f(640, 0), sf::Vector2f(150, 90), "Animation",
                        sf::Color::Yellow, sf::Color::Black, font, true);
 
-  Button error_button(
+ gr::Button error_button(
       sf::Vector2f(window.getSize().x / 2 - 100, window.getSize().y / 2 - 50),
       sf::Vector2f(200, 100), "Add a planet", sf::Color::Transparent,
       sf::Color::Red, font, false);
@@ -186,11 +169,13 @@ int main() {
   text2.setFont(font);
   text2.setPosition(0, 0);
 
-finestre_aperte:
+windows_open:
   while (window.isOpen() || window.isOpen()) {
     if (firstwindow) {
       sf::Event event;
       while (window.pollEvent(event)) {
+
+        ///CLOSE WINDOW
         if (event.type == sf::Event::Closed) {
           window.close();
           evolvewindow.close();
@@ -198,145 +183,169 @@ finestre_aperte:
 
         if (event.type == sf::Event::MouseButtonPressed &&
             event.mouseButton.button == sf::Mouse::Left) {
-          /// MOUSE IS CLICKED
+
+          /// MOUSE LEFT IS CLICKED
           sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
 
-          if (evolve_button.isClicked(mousePosition) &&
-              evolve_button.isVisible()) {
-            if (u.size() == 0) {
+
+         ////EVOLVE BUTTON
+          if (evolve_button.isClicked(mousePosition) && evolve_button.isVisible()) {
+            if ((*ptr).size() == 0) {
               error_button.show();
-            } else {
+            } 
+            else {
+
+            //  (*ptr).lost_energy_=0.;
+              (*ptr).calculateenergy();
+              (*ptr).setInitialEnergy();
+
+  
+
+              next_button.hide();
+              data_button.hide();
+              selecting=false;selected=false;choosingvalue=false;
               window.setVisible(false);
               evolvewindow.setVisible(true);
               firstwindow = false;
               animation = true;
-             //  (*ptr).findimportantplanet();
-            /// (*ptr)=u;
-            //  for(int i=0; i<u.size();i++){(*ptr).push_back(u[i]);}
-            
+                        
             }
-            traj.resize(u.size());
+           
           }
 
           evolve_button.hide();
 
+          ////SAVE BUTTON
           if (save_button.isClicked(mousePosition) && save_button.isVisible()) {
             selected = false;
             selecting = false;
-            u.save();
+            choosingvalue=false;
+            (*ptr).save();
             evolve_button.show();
-
           }
 
+
+         ///ADD BUTTON
           else if (add_button.isClicked(mousePosition) &&
                    add_button.isVisible()) {
             G::PlanetState p{1e10, -camera.x + 400, -camera.y + 400, 0, 0,
                              100,  "default"};
-            u.push_back(p);
-            u.save();
-            tm.tm("Folder", &u);
+            (*ptr).push_back(p);
+            (*ptr).save();
+            (*tm).tm("Folder", &(*ptr));
           }
 
+
+         /////SELECT BUTTON
           else if (select_button.isClicked(mousePosition) &&
                    select_button.isVisible()) {
             selecting = !selecting;
-            if (u.size() == 0) {
+            if ((*ptr).size() == 0) {
               selecting = false;
               error_button.show();
             }
             if (selecting) {
-              choose = 0;
+              planetIndex = 0;
               select_button.setText("Unselect\nplanet");
               next_button.show();
               selected = false;
+              choosingvalue=false;
 
             } else {
               select_button.setText("Select\nplanet");
               selected = false;
+              choosingvalue=false;
               next_button.hide();
               data_button.hide();
             }
           }
-
+        ////NEXT BUTTON
           else if (next_button.isClicked(mousePosition) &&
-                   next_button.isVisible() && u.size() > 0) {
+                   next_button.isVisible() && (*ptr).size() > 0) {
             selected = false;
             choosingvalue = false;
-            if (choose < u.size() - 1) {
-              choose++;
+            if (planetIndex < (*ptr).size() - 1) {
+              planetIndex++;
             } else {
-              choose = 0;
+              planetIndex = 0;
             }
-            camera.x = -u[choose].x + 400;
-            camera.y = -u[choose].y + 400;
+            camera.x = -(*ptr)[planetIndex].x + 400;
+            camera.y = -(*ptr)[planetIndex].y + 400;
 
           }
-
+         /////DATA BUTTON
           else if (((data_button.isClicked(mousePosition) &&
                      data_button.isVisible()))) {
             choosingvalue = !choosingvalue;
-
-          } else if (((error_button.isClicked(mousePosition) &&
+          } 
+          ///ERROR BUTTON
+          else if (((error_button.isClicked(mousePosition) &&
                        error_button.isVisible()))) {
             error_button.hide();
           }
-
+         ////NO BUTTON
           else {
+
+            ///choosingvalue
             if (choosingvalue) {
-              if (choose2 == 1) {
-                u[choose].x = mousePosition.x - camera.x;
-                u[choose].y = mousePosition.y - camera.y;
+              if (var == 1) {
+                (*ptr)[planetIndex].x = mousePosition.x - camera.x;
+                (*ptr)[planetIndex].y = mousePosition.y - camera.y;
               }
 
-              if (choose2 == 2) {
-                u[choose].v_x = mousePosition.x - camera.x - u[choose].x;
-                u[choose].v_y = mousePosition.y - camera.y - u[choose].y;
+              if (var == 2) {
+                (*ptr)[planetIndex].v_x = mousePosition.x - camera.x - (*ptr)[planetIndex].x;
+                (*ptr)[planetIndex].v_y = mousePosition.y - camera.y - (*ptr)[planetIndex].y;
               }
 
             }
-
+          ////selecting
             else if (selecting) {
-              index = u.findNearestPlanet(sf::Vector2i(
+              index = (*ptr).findNearestPlanet(sf::Vector2i(
                   mousePosition.x - camera.x, mousePosition.y - camera.y));
-              /*sf::FloatCircle buttonBounds = shape_.getGlobalBounds();
-             return buttonBounds.contains(sf::Vector2f(mousePosition));*/
+             
 
-              float radius = u[index].r;
-              float distance = std::sqrt(
-                  std::pow(mousePosition.x - (u[index].x + camera.x), 2) +
-                  std::pow(mousePosition.y - (u[index].y + camera.y), 2));
+              float radius = (*ptr)[index].r;
+              float distance= std::hypot(mousePosition.x - ((*ptr)[index].x + camera.x),mousePosition.y - ((*ptr)[index].y + camera.y));
 
               if (distance < radius) {
-                if (index == choose) {
+                if (index == planetIndex) {
                   selected = !selected;
                 } else {
                   selected = false;
-                  choose = index;
+                  planetIndex = index;
                 }
               }
             }
 
-          }  /// fine else
+          }
 
-        }  /// fine click sinistra
+        }  /// this is the end of "MOUSE LEFT CLICKED"
+
+        ////MOUSE RIGHT CLICKED
         if (event.type == sf::Event::MouseButtonPressed &&
             event.mouseButton.button == sf::Mouse::Right && !choosingvalue) {
           sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
 
           if (data_button.isClicked(mousePosition) && data_button.isVisible()) {
-            if (choose2 < choice.size() - 1) {
-              choose2++;
+            if (var < choice.size() - 1) {
+              var++;
             } else {
-              choose2 = 0;
+              var = 0;
             }
 
-            data_button.setText(choice[choose2]);
+            data_button.setText(choice[var]);
           }
 
-        }  /// fine click destra
+        }  /// this is the end of "MOUSE RIGHT CLICKED"
 
-        ////MOVING CAMERA
+        
+        
+        ////KEYBOARD
 
+
+
+/////camera
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
           camera.x += 5;
         }
@@ -352,6 +361,10 @@ finestre_aperte:
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
           selected = true;
         }
+
+////SHORTCUTS
+
+
         if (selecting || selected) {
           if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
             data_button.show();
@@ -360,8 +373,8 @@ finestre_aperte:
             selecting = true;
             choosingvalue = true;
             selected = true;
-            choose2 = 0;
-            data_button.setText(choice[choose2]);
+            var = 0;
+            data_button.setText(choice[var]);
           }
           if (sf::Keyboard::isKeyPressed(sf::Keyboard::P)) {
             data_button.show();
@@ -370,8 +383,8 @@ finestre_aperte:
             selecting = true;
             choosingvalue = true;
             selected = true;
-            choose2 = 1;
-            data_button.setText(choice[choose2]);
+            var = 1;
+            data_button.setText(choice[var]);
           }
           if (sf::Keyboard::isKeyPressed(sf::Keyboard::V)) {
             data_button.show();
@@ -379,10 +392,11 @@ finestre_aperte:
 
             choosingvalue = true;
 
+
             selecting = true;
             selected = true;
-            choose2 = 2;
-            data_button.setText(choice[choose2]);
+            var = 2;
+            data_button.setText(choice[var]);
           }
           if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
             data_button.show();
@@ -390,8 +404,8 @@ finestre_aperte:
 
             selecting = true;
             selected = true;
-            choose2 = 3;
-            data_button.setText(choice[choose2]);
+            var = 3;
+            data_button.setText(choice[var]);
           }
           if (sf::Keyboard::isKeyPressed(sf::Keyboard::T)) {
             data_button.show();
@@ -400,33 +414,36 @@ finestre_aperte:
 
             selecting = true;
             selected = true;
-            choose2 = 4;
-            data_button.setText(choice[choose2]);
+            var = 4;
+            data_button.setText(choice[var]);
           }
           if (sf::Keyboard::isKeyPressed(sf::Keyboard::X)) {
             next_button.show();
             data_button.show();
             selecting = true;
             selected = true;
-            choose2 = 5;
-            data_button.setText(choice[choose2]);
+            var = 5;
+            data_button.setText(choice[var]);
           }
         }
 
-      }  ////poll event
+      }  ////END of pollEvent
+
+
+
 
       if (choosingvalue) {
         double a;
 
         std::string t;
 
-        switch (choose2) {
+        switch (var) {
           case 0:
             choosingvalue = true;
             window.setVisible(false);
             std::cout << "Choose mass: ";
             std::cin >> a;
-            u[choose].m = a;
+            (*ptr)[planetIndex].m = a;
             choosingvalue = false;
 
             break;
@@ -437,7 +454,7 @@ finestre_aperte:
             window.setVisible(false);
             std::cout << "\nChoose rad: ";
             std::cin >> a;
-            u[choose].r = a;
+            (*ptr)[planetIndex].r = a;
             choosingvalue = false;
 
             break;
@@ -450,122 +467,80 @@ finestre_aperte:
 
             std::cout << "Choose texture: ";
             std::cin >> t;
-            u[choose].stringtexture = t;
-            tm.tm("Folder", &u);
+            (*ptr)[planetIndex].stringtexture = t;
+            (*tm).tm("Folder", &(*ptr));
             choosingvalue = false;
 
             break;
 
           case 5:
-            if (choose < u.size()) {
-              std::cout << u.size();
-              u.remove(u[choose]);
+            if (planetIndex < (*ptr).size()) {
+              std::cout << (*ptr).size();
+              (*ptr).remove((*ptr)[planetIndex]);
             }
-            if (u.size() == 0) {
-              selecting = false;
+            if ((*ptr).size() == 0) {
+             
               selected = false;
             }
-            std::cout << u.size();
+            std::cout << (*ptr).size();
             choosingvalue = false;
-            choose = 0;
+            planetIndex = 0;
             break;
         }
-        u.save();
+        (*ptr).save();
         window.setVisible(true);
 
-      }  /// choosing value
+      }  /// finish getting the input
 
+ if (selected) {
+        data_button.show();
+      } else {
+        data_button.hide();
+      }
+
+      window.clear();
+
+////TEXT
       std::string output = "camera_x=" + std::to_string(800 - camera.x) +
                            "\ncamera_y=" + std::to_string(800 - camera.y);
 
       if (selecting) {
         std::ostringstream oss;
         oss << std::scientific
-            << std::setprecision(2);  // Set precision as needed
+            << std::setprecision(2);
 
-        oss << "\nm=" << u[choose].m << "\nx=" << u[choose].x
-            << "\ny=" << u[choose].y << "\nv_x=" << u[choose].v_x
-            << "\nv_y=" << u[choose].v_y << "\nr=" << u[choose].r << "\n"
-            << u[choose].stringtexture << "\ni=" << index << ",c=" << choose;
+        oss << "\nm=" << (*ptr)[planetIndex].m << "\nx=" << (*ptr)[planetIndex].x
+            << "\ny=" << (*ptr)[planetIndex].y << "\nv_x=" << (*ptr)[planetIndex].v_x
+            << "\nv_y=" << (*ptr)[planetIndex].v_y << "\nr=" << (*ptr)[planetIndex].r << "\n"
+            << (*ptr)[planetIndex].stringtexture << "\ni=" << index << ",c=" << planetIndex;
 
         output += oss.str();
       }
 
-      // ...
 
       text.setString(output);
 
-      window.clear();
 
-      if (selected) {
-        data_button.show();
-      } else {
-        data_button.hide();
-      }
 
-      for (unsigned int i = 0; i < u.size(); ++i) {
-        float r = u[i].r;
+std::vector<G::PlanetState> draw=(*ptr).state();
 
-        sf::FloatRect planetBounds(u[i].x + camera.x - r, u[i].y + camera.y - r,
-                                   2 * r, 2 * r);
-
-        if (planetBounds.intersects(visibleArea)) {
-          planet.setPosition(u[i].x + camera.x, u[i].y + camera.y);
-          planet.setOrigin(r, r);
-          planet.setRadius(r);
-          planet.setTexture(u[i].texture);
-          window.draw(planet);
-
-          sf::Vector2f start(static_cast<float>(u[i].x + camera.x),
-                             static_cast<float>(u[i].y + camera.y));
-          sf::Vector2f end(static_cast<float>(u[i].x + u[i].v_x + camera.x),
-                           static_cast<float>(u[i].y + u[i].v_y + camera.y));
-          sf::Vector2f dir(static_cast<float>(u[i].v_x),
-                           static_cast<float>(u[i].v_y));
-
-          if (selecting) {
-            std::vector<sf::Vertex> arrow =
-                drawArrow(start, end, dir, sf::Color::White);
-
-            window.draw(arrow.data(), arrow.size(), sf::Lines);
-          }
-
-        }  /// se dentro l'area
-
+      for (auto it = draw.begin(); it < draw.end(); ++it) {
+        gr::drawing::drawPlanet(*it,camera,nullptr,window,visibleArea,selecting);
       }  ////fine for
 
       if (selecting) {
-        float r = u[choose].r;
-        sf::Vector2f start(static_cast<float>(u[choose].x + camera.x),
-                           static_cast<float>(u[choose].y + camera.y));
-        sf::Vector2f end(
-            static_cast<float>(u[choose].x + u[choose].v_x + camera.x),
-            static_cast<float>(u[choose].y + u[choose].v_y + camera.y));
-        sf::Vector2f dir(static_cast<float>(u[choose].v_x),
-                         static_cast<float>(u[choose].v_y));
-
-        contorno.setRadius(r + 3);
-        contorno.setOrigin(r + 3, r + 3);
-
-        contorno.setFillColor(sf::Color::White);
         if (choosingvalue) {
-          contorno.setFillColor(sf::Color::Red);
+          gr::drawing::drawPlanet((*ptr)[planetIndex],camera,&sf::Color::Red,window,visibleArea,selecting);
         } else if (selected) {
-          contorno.setFillColor(sf::Color::Yellow);
+         gr::drawing::drawPlanet((*ptr)[planetIndex],camera,&sf::Color::Yellow,window,visibleArea,selecting);
         }
-        contorno.setPosition(u[choose].x + camera.x, u[choose].y + camera.y);
-        window.draw(contorno);
-        planet.setPosition(u[choose].x + camera.x, u[choose].y + camera.y);
-        planet.setOrigin(r, r);
-        planet.setRadius(r);
-        planet.setTexture(u[choose].texture);
-        window.draw(planet);
 
-        std::vector<sf::Vertex> arrow =
-            drawArrow(start, end, dir, sf::Color::Green);
-
-        window.draw(arrow.data(), arrow.size(), sf::Lines);
-      }  /// seletcing
+      else{
+gr::drawing::drawPlanet((*ptr)[planetIndex],camera,&sf::Color::White,window,visibleArea,selecting);
+      }
+      }
+        
+  
 
       window.draw(text);
 
@@ -581,111 +556,131 @@ finestre_aperte:
 
     }
 
+
+
     else {
       ///////SECONDA FINESTRA
 
       
       sf::Event event;
-
       bool pressed{false};
+
       while (evolvewindow.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
-          //    for(int i=0; i<(*ptr).size();i++){(*ptr).remove((*ptr)[0]);}
 
-          window.setVisible(true);
-          evolvewindow.setVisible(false);
-          choose2 = 0;
+
+          var = 0;
           firstwindow = true;
           animation = false;
-          camera.x = -u[0].x + 400;
-          camera.y = -u[0].y + 400;
           traj.clear();
+          ptr = std::make_shared<U::FileUniverse>(newton, response, true);
+          (*ptr).save();
+          (*tm).tm("Folder", &(*ptr));
+          camera.x = -(*ptr)[0].x + 400;
+          camera.y = -(*ptr)[0].y + 400;
           renderTexture.clear();
-          goto finestre_aperte;
+          window.setVisible(true);
+          evolvewindow.setVisible(false);
+          goto windows_open;
         }
 
+
+////STOP AND PAUSE
         if (!pressed && sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
           animation = !animation;
           pressed = true;
         }
-
+///CREATE VECTOR
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::O)) {
           if (!createvector) {
             followOnePlanet = false;
             followPlanets = false;
             createvector = true;
             planetsfollowing.clear();
-            choose2 = 0;
-            assert(choose < (*ptr).size());
-            planetsfollowing.push_back(&(*ptr)[choose]);
+            var = 0;
+            assert(planetIndex < (*ptr).size());
+            planetsfollowing.push_back(&(*ptr)[planetIndex]);
           }
         }
+        ///FINISH TO CREATE VECTOR
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
           createvector = false;
           followPlanets = true;
         }
+
+        ////MOVE WITHIN VECTOR (GO TO LEFT)
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-          if (createvector && choose2 > 0) {
-            choose2--;
+          if (createvector && var > 0) {
+            var--;
           }
         }
+        ////MOVE WITHIN VECTOR (GO TO RIGHT)
+
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
           if (createvector) {
-            if (choose2 < planetsfollowing.size() - 1) {
-              choose2++;
+            if (var < planetsfollowing.size() - 1) {
+              var++;
             } else {
-              assert(choose < (*ptr).size());
-              planetsfollowing.push_back(&(*ptr)[choose]);
-              choose2++;
-              assert(choose2 < planetsfollowing.size());
+              assert(planetIndex < (*ptr).size());
+              planetsfollowing.push_back(&(*ptr)[planetIndex]);
+              var++;
+              assert(var < planetsfollowing.size());
             }
           }
 
-        }  /// devi essere nel penultimo elemento altrimenti pushback
-
+        }  
+   ///SEE NEXT PLANET
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-          if (choose < (*ptr).size() - 1) {
-            choose++;
+          if (planetIndex < (*ptr).size() - 1) {
+            planetIndex++;
           } else {
-            choose = 0;
+            planetIndex = 0;
           }
-          assert(choose < (*ptr).size());
+          assert(planetIndex < (*ptr).size());
           if (createvector) {
-            assert(choose2 < planetsfollowing.size());
-            planetsfollowing[choose2] = &(*ptr)[choose];
+            assert(var < planetsfollowing.size());
+            planetsfollowing[var] = &(*ptr)[planetIndex];
           }
         }
+        ////SEE PREVIUOS PLANET
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-          if (choose > 0) {
-            choose--;
+          if (planetIndex > 0) {
+            planetIndex--;
           } else {
-            choose = (*ptr).size() - 1;
+            planetIndex = (*ptr).size() - 1;
           }
-          assert(choose < u.size());
+          assert(planetIndex < (*ptr).size());
           if (createvector) {
-            assert(choose2 < u.size());
-            planetsfollowing[choose2] = &(*ptr)[choose];
+            assert(var < (*ptr).size());
+            planetsfollowing[var] = &(*ptr)[planetIndex];
           }
         }
+
+        /////DELETE PLANET FROM PLANETS' SET
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::X)) {
           if (planetsfollowing.size() > 1) {
-            auto it = planetsfollowing.begin() + choose2;
+            auto it = planetsfollowing.begin() + var;
             assert(it != planetsfollowing.end());
-            if (choose == planetsfollowing.size() - 1) {
-              choose--;
+            if (planetIndex == planetsfollowing.size() - 1) {
+              planetIndex--;
             }
             planetsfollowing.erase((it));
           }
         }
+
+        ////FOLLOW THE CENTER OF PLANETS' SET
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::C)) {
           followPlanets = true;
           followOnePlanet = false;
         }
+        ///FOLLOW ONE PLANET
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::P)) {
           followPlanets = false;
           followOnePlanet = true;
         }
 
+
+/////camera
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
           camera.x += 5;
           followPlanets = false;
@@ -707,35 +702,47 @@ finestre_aperte:
           followOnePlanet = false;
         }
 
-      }  /// poll event
+      }  ////END of pollEvent
       
-      renderTexture.clear();
-
       elapsed = clock.restart();
-  //    std::cout << std::to_string(1.0f / elapsed.asSeconds()) + "\n";
 
       evolvewindow.clear();
+      renderTexture.clear();
+  // if(day%50){
+  //            (*ptr).calculateenergy();
+  // }
+    
 
-      // if (animation) {
-      unsigned int s = (*ptr).size();
+
+
+       if (animation) {///the animation is on play
+   day++;///
+
+for(int i=0;i<100;i++){
+    unsigned int s = (*ptr).size();
      assert( (*ptr).size()>0);
+        (*ptr).evolve(0.01);
+        if (s > (*ptr).size()) {
 
-     for(int i=0;i<100;i++){
-        (*ptr).evolve(0.01);}
-        if (s < (*ptr).size()) {
-          if (choose >= (*ptr).size()) {
-            choose--;
-            assert(choose < u.size());
-          }
           followPlanets = false;
-        }
-      // }
+
+          if (planetIndex >= (*ptr).size()) {
+            planetIndex--;
+            assert(planetIndex < (*ptr).size());
+          }
+        }}
+       }
+
+  
       if (followOnePlanet) {
-        camera.x = 400 - (*ptr)[choose].x;
-        camera.y = 400 - (*ptr)[choose].y;
+        camera.x = 400 - (*ptr)[planetIndex].x;
+        camera.y = 400 - (*ptr)[planetIndex].y;
       }
 
       else if (followPlanets) {
+
+        ///CENTROID
+
         std::pair<double, double> translation = std::accumulate(
             planetsfollowing.begin(), planetsfollowing.end(),
             std::make_pair(0.0, 0.0),
@@ -750,13 +757,14 @@ finestre_aperte:
 
       }
 
-      else if (createvector) {
+
+      else if (createvector) {////text to guide the user to create the planets' set vector
         std::string s;
-        if (choose2 == 0) {
+        if (var == 0) {
           s = "st";
-        } else if (choose2 == 1) {
+        } else if (var == 1) {
           s = "nd";
-        } else if (choose2 == 2) {
+        } else if (var == 2) {
           s = "rd";
         } else {
           s = "th";
@@ -765,58 +773,135 @@ finestre_aperte:
         text2.setString("You are following " +
                         std::to_string(planetsfollowing.size()) +
                         " planet(s) and you are choosing the " +
-                        std::to_string(choose2 + 1) + s + " planet");
+                        std::to_string(var + 1) + s + " planet");
 
-        camera.x = 400 - (*planetsfollowing[choose2]).x;
-        camera.y = 400 - (*planetsfollowing[choose2]).y;
-        text2.setPosition((*ptr)[choose].x - 400, (*ptr)[choose].y - 400);
+        camera.x = 400 - (*planetsfollowing[var]).x;
+        camera.y = 400 - (*planetsfollowing[var]).y;
+        text2.setPosition((*ptr)[planetIndex].x - 400, (*ptr)[planetIndex].y - 400);
         renderTexture.draw(text2);
       }
+///drawing text
+ std::string output;
+  //  assert((*ptr).cinetic_energy_>=0);
+  //  assert((*ptr).potential_energy_<=0);
+        std::ostringstream oss;
+        oss << std::scientific
+            << std::setprecision(20);
 
-      planet.setTexture((*ptr)[0].texture);
+            output=months[month-1]+" "+std::to_string(year)+"\nFPS: "+std::to_string(1.0f / elapsed.asSeconds());
+if(followOnePlanet){
+        oss << "\nm=" << (*ptr)[planetIndex].m
+            << "\nvx=" << (*ptr)[planetIndex].v_x << "\nvy=" << (*ptr)[planetIndex].v_y
+            << "\n"<<(*ptr)[planetIndex].stringtexture;
 
+        
+}else {
+  //  oss       << "\ninitial energy=" << (*ptr).initial_energy_
+  //           << "\ntotal energy=" << (*ptr).total_energy_
+  //           << "\nmechanic energy=" << (*ptr).mechanic_energy_
+  //           << "\ncinetic energy=" << (*ptr).cinetic_energy_
+  //           << "\npotential energy=" << (*ptr).potential_energy_
+  //           << "\nlost energy=" << (*ptr).lost_energy_;
+
+// size_t str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).initial_energy_);
+// char *str_initial_energy = new char[str_size + 1];
+// mpfr_snprintf(str_initial_energy, str_size + 1, "%.Rf", (*ptr).initial_energy_);
+// std::string result_initial_energy(str_initial_energy);
+// output += ("\n"+result_initial_energy + "\n");
+// delete[] str_initial_energy;
+
+// str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).total_energy_);
+// char *str_total_energy = new char[str_size + 1];
+// mpfr_snprintf(str_total_energy, str_size + 1, "%.Rf", (*ptr).total_energy_);
+// std::string result_total_energy(str_total_energy);
+// output += (result_total_energy + "\n");
+// delete[] str_total_energy;
+
+//   str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).cinetic_energy_);
+// char *str_cinetic_energy = new char[str_size + 1];
+// mpfr_snprintf(str_cinetic_energy, str_size + 1, "%.Rf", (*ptr).cinetic_energy_);
+// std::string result_cinetic_energy(str_cinetic_energy);
+// output += (result_cinetic_energy + "\n");
+// delete[] str_cinetic_energy;
+
+//   str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).potential_energy_);
+// char *str_potential_energy = new char[str_size + 1];
+// mpfr_snprintf(str_potential_energy, str_size + 1, "%.Rf", (*ptr).potential_energy_);
+// std::string result_potential_energy(str_potential_energy);
+// output += (result_potential_energy + "\n");
+// delete[] str_potential_energy;
+
+//   str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).mechanic_energy_);
+// char *str_mechanic_energy_ = new char[str_size + 1];
+// mpfr_snprintf(str_mechanic_energy_, str_size + 1, "%.Rf", (*ptr).mechanic_energy_);
+// std::string result_mechanic_energy_(str_mechanic_energy_);
+// output += (result_mechanic_energy_ + "\n");
+// delete[] str_mechanic_energy_;
+
+//   str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).lost_energy_);
+// char *str_lost_energy_ = new char[str_size + 1];
+// mpfr_snprintf(str_lost_energy_, str_size + 1, "%.Rf", (*ptr).lost_energy_);
+// std::string result_lost_energy_(str_lost_energy_);
+// output += (result_lost_energy_ + "\n");
+// delete[] str_lost_energy_;
+
+
+}
+output += oss.str();
+
+      text2.setString(output);
+      text2.setPosition(0,100);
+
+
+////drawing trajectory
+        renderTexture.draw(traj);
+      
+
+////drawings planet
       for (unsigned int i = 0; i < (*ptr).size(); ++i) {
-        if (animation) {
-          traj[i].append(sf::Vertex(sf::Vector2f((*ptr)[i].x, (*ptr)[i].y),
-                                    sf::Color::Yellow));
-        }
+      if (animation) {
+          traj.append(sf::Vertex(sf::Vector2f((*ptr)[i].x, (*ptr)[i].y),colors[i%colors.size()]));}
 
-        float r = u[i].r;
 
-        sf::FloatRect planetBounds((*ptr)[i].x + camera.x - r,
-                                   (*ptr)[i].y + camera.y - r, 2 * r, 2 * r);
+        float r = (*ptr)[i].r;
 
-        renderTexture.draw(traj[i]);
+        sf::FloatRect planetBounds((*ptr)[i].x + camera.x - r,(*ptr)[i].y + camera.y - r, 2 * r, 2 * r);
 
-        if (planetBounds.intersects(visibleArea2)) {
+
+        if (planetBounds.intersects(visibleArea)) {
+        ////draw only visible planets
+
           planet.setPosition((*ptr)[i].x, (*ptr)[i].y);
-
           planet.setOrigin(r, r);
           planet.setRadius(r);
           planet.setTexture((*ptr)[i].texture);
           renderTexture.draw(planet);
 
-        }  /// i pianeti visibili
+        }
 
-      }  ////il for per disegnare i pianeti
+      }
 
+
+     ///adjusting display
       renderTexture.display();
 
       sf::View customView = evolvewindow.getDefaultView();
       customView.move(-camera.x, -camera.y);
       renderTexture.setView(customView);
-
       sf::Sprite sprite(renderTexture.getTexture());
-
       evolvewindow.draw(sprite);
+     evolvewindow.draw(text2);
 
       evolvewindow.display();
 
-      renderTexture.clear();
-
-      // customView.move(camera.x, camera.y);
-
+      if(day%1440==0){
+        if(month<12){
+          month++;
+        }
+        else {month=1;year++;}
+      }
       
+    
     }
 
   }  /// while window e evolvewindow

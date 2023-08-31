@@ -1,0 +1,4 @@
+
+2.8e+21 0 0 5 -15 100 standard.jpg
+4.8e+24 140 -135 1 -10 100 standard.jpg
+0 320 -20 352 -349 100 standard.jpg
