@@ -2,12 +2,12 @@
 #include "universe.hpp"
 #include <cmath>
 
-
+#include <mpfr.h>
 #include <algorithm>
 #include <cassert>
 #include <numeric>
 #include <iostream>
-#include <iomanip>128
+#include <iomanip>
 
 
 
@@ -16,19 +16,7 @@
 
 
 
-U::Universe::Universe(U::Newton const &newton) : newton_{newton} {
-      mpfr_init2(initial_energy_,128);
-        mpfr_init2(cinetic_energy_,128);
-        mpfr_init2(potential_energy_,128);
-        mpfr_init2(mechanic_energy_,128);
-        mpfr_init2(lost_energy_,128);
-        mpfr_init2(total_energy_,128);
-   
-
-
-
-
-}
+U::Universe::Universe(U::Newton const &newton) : newton_{newton} {}
 unsigned int U::Universe::size() const { return galaxy_.size(); }
 
 void U::Universe::push_back(G::PlanetState const &ps) { galaxy_.push_back(ps); }
@@ -75,6 +63,7 @@ void U::Universe::evolve(double delta_t) {
 std::vector<G::PlanetState> const &U::Universe::state() const {
   return galaxy_;
 }
+
 G::PlanetState U::Universe::solve(G::PlanetState const &ps,  double fx,
                                    double fy, double delta_t) const {
    double ax = fx / ps.m;
@@ -115,12 +104,8 @@ void U::Universe::check_Collision(){
 
 
 
-mpfr_t before;
-mpfr_init2(before, 128);
-calculateenergy();
-mpfr_init_set(before, total_energy_, MPFR_RNDN);
 
-unsigned int s = copy_.size();
+
 if (newton_.d_2((*it),(*jt))<=newton_.r_2 ((*it),(*jt))){
 double M = ((*it).m+(*jt).m);
 double X = ((*it).m*(*it).x+(*jt).m*(*jt).x);
@@ -131,35 +116,36 @@ double VY = (((*it).m*(*it).v_y)  + ((*jt).m*(*jt).v_y));
 
 
 G::PlanetState p{M,X/M, Y/M, VX/M, VY/M, R, (  ((*it).m > (*jt).m) ? (*it).stringtexture : (*jt).stringtexture), (  ((*it).m > (*jt).m) ? (*it).texture : (*jt).texture)};
-//G::PlanetState p{0,0,0,0,0,0};
- 
+  double before;
+
+ calculateenergy();
+before=total_energy_;
+unsigned int s = copy_.size();
 
 auto kt = std::find(copy_.begin(), copy_.end(), (*it));
  assert(kt!=copy_.end());
     copy_.erase(kt);
 
 
-// copy_=galaxy_;
 auto lt = std::find(copy_.begin(), copy_.end(), (*jt));
  assert(lt!=copy_.end());
     copy_.erase(lt);
 
  copy_.push_back(p);
 
- assert (copy_.size()==s-1);
+assert (copy_.size()==s-1);
 assert(copy_.size()>0);
 
  galaxy_=copy_;
 
- mpfr_t after;
-mpfr_init2(after, 128);
-calculateenergy();
-mpfr_init_set(after, total_energy_, MPFR_RNDN);
-assert(mpfr_cmp(before, after) >= 0);
-mpfr_sub(lost_energy_, before, after, MPFR_RNDN);
 
-        mpfr_clear(before);
-        mpfr_clear(after);
+ calculateenergy();
+double after;
+after=total_energy_;
+
+ assert(before>=after);
+lost_energy_=before-after;
+
 
 
 goto end;
@@ -172,27 +158,31 @@ return;
 }
 
 void U::Universe::calculateenergy() {
-  /*
+
 
 mpfr_t sum;
 mpfr_init2(sum, 128);
-    mpfr_set_zero(sum, 0);  // Inizializza la somma a 0
 
-    for (const G::PlanetState &gi : galaxy_) {
+
+mpfr_set_zero(sum, 0);
+ 
+
+
 
         mpfr_t mass;
 mpfr_init2(mass, 128);
-        mpfr_init_set_d(mass, gi.m, MPFR_RNDN);
-
-
 
         mpfr_t vx;
 mpfr_init2(vx, 128);
-        mpfr_init_set_d(vx, gi.v_x, MPFR_RNDN);
-
         mpfr_t vy;
 mpfr_init2(vy, 128);
-        mpfr_init_set_d(vy, gi.v_y, MPFR_RNDN);
+
+    for (const G::PlanetState &gi : galaxy_) {
+
+
+        mpfr_set_d(mass, gi.m, MPFR_RNDN);
+        mpfr_set_d(vx, gi.v_x, MPFR_RNDN);
+        mpfr_set_d(vy, gi.v_y, MPFR_RNDN);
 
  mpfr_mul(vx, vx, vx, MPFR_RNDN);// vx*vx
  mpfr_mul(vy, vy, vy, MPFR_RNDN); //vy*vy
@@ -204,70 +194,93 @@ mpfr_init2(vy, 128);
 
 mpfr_add(sum, sum, mass, MPFR_RNDN);
 
-        mpfr_clear(mass);
-        mpfr_clear(vx);
-        mpfr_clear(vy);
+      
 
     }
- mpfr_mul_d(sum, sum, 1e3, MPFR_RNDN);
-    mpfr_set(cinetic_energy_, sum, MPFR_RNDN); // Assegna il valore di sum a cinetic_energy_
 
-  mpfr_set_zero(sum, 0); 
+  mpfr_clear(mass);
+  mpfr_clear(vx);
+  mpfr_clear(vy);
+     
+     
+     
+ 
+
+
+
+ mpfr_mul_d(sum, sum, 1e3, MPFR_RNDN);
+ cinetic_energy_ = mpfr_get_d(sum, MPFR_RNDN);
+
+
+
+mpfr_t sum2;
+mpfr_init2(sum2, 128);
+mpfr_set_zero(sum2, 0); 
+
+      mpfr_t m;
+      mpfr_init2(m, 128);
+
+      mpfr_t G;
+      mpfr_init2(G, 128);
+
+      mpfr_t M;
+       mpfr_init2(M, 128);
+
+
+      mpfr_t x;
+      mpfr_init2(x, 128);
+
+      mpfr_t X;
+      mpfr_init2(X, 128);
+
+      mpfr_t y;
+      mpfr_init2(y, 128);
+
+      mpfr_t Y;
+      mpfr_init2(Y, 128);
 
     for (const G::PlanetState &gi : galaxy_) {
     for (const G::PlanetState &hi : galaxy_) {
 if (!(gi == hi)) {
 
 
-      mpfr_t G;
-      mpfr_init2(G, 128);
-      mpfr_init_set_d(G, newton_.G_, MPFR_RNDN);
-
-      mpfr_t m;
-      mpfr_init2(m, 128);
-      mpfr_init_set_d(m, gi.m, MPFR_RNDN);
-
-      mpfr_t M;
-      mpfr_init2(M, 128);
-      mpfr_init_set_d(M, hi.m, MPFR_RNDN);
-
-
-      mpfr_t x;
-      mpfr_init2(x, 128);
-      mpfr_init_set_d(x, gi.x, MPFR_RNDN);
-
-      mpfr_t X;
-      mpfr_init2(X, 128);
-      mpfr_init_set_d(X, hi.x, MPFR_RNDN);
-
-
-          mpfr_t y;
-      mpfr_init2(y, 128);
-      mpfr_init_set_d(y, gi.y, MPFR_RNDN);
-
-      mpfr_t Y;
-      mpfr_init2(Y, 128);
-      mpfr_init_set_d(Y, hi.y, MPFR_RNDN);
-
-      mpfr_sub(x, x, X, MPFR_RNDN);
-      mpfr_mul(x, x, x, MPFR_RNDN);
-      mpfr_sub(y, y, Y, MPFR_RNDN);
-      mpfr_mul(y, y, y, MPFR_RNDN);
-
-       mpfr_add(x, x, y, MPFR_RNDN);
+      
+      mpfr_set_d(G, newton_.G_, MPFR_RNDN);
+      mpfr_set_d(m, gi.m, MPFR_RNDN);
+      mpfr_set_d(M, hi.m, MPFR_RNDN);
+      mpfr_set_d(x, gi.x, MPFR_RNDN);
+      mpfr_set_d(X, hi.x, MPFR_RNDN);
+      mpfr_set_d(y, gi.y, MPFR_RNDN);
+       mpfr_set_d(Y, hi.y, MPFR_RNDN);
 
 
 
-      mpfr_sqrt(x, x, MPFR_RNDN);
-
-      mpfr_mul(G, G, m, MPFR_RNDN);
-      mpfr_mul(G, G, M, MPFR_RNDN);
-     mpfr_div(G, G, x, MPFR_RNDN);
 
 
-mpfr_add(sum, sum, G, MPFR_RNDN);
+      mpfr_sub(x, x, X, MPFR_RNDN);//a.x-b.x=x
+      mpfr_mul(x, x, x, MPFR_RNDN);//x^2
+      mpfr_sub(y, y, Y, MPFR_RNDN);//a.y-b.y=y
+      mpfr_mul(y, y, y, MPFR_RNDN);//y^2
 
-        mpfr_clear(x);
+       mpfr_add(x, x, y, MPFR_RNDN);///x^2+y^2=d^2
+
+
+
+      mpfr_sqrt(x, x, MPFR_RNDN);///d
+
+      mpfr_mul(G, G, m, MPFR_RNDN);///G*m
+      mpfr_mul(G, G, M, MPFR_RNDN);///G*m*M
+     mpfr_div(G, G, x, MPFR_RNDN);///G*m*M/d
+
+
+mpfr_add(sum2, sum2, G, MPFR_RNDN);
+
+        
+
+        }
+    }}
+
+    mpfr_clear(x);
         mpfr_clear(X);
         mpfr_clear(y);
         mpfr_clear(Y);
@@ -276,27 +289,41 @@ mpfr_add(sum, sum, G, MPFR_RNDN);
         mpfr_clear(G);
 
 
-        }
-    }}
+ 
 
-     mpfr_div_d(sum, sum, 2, MPFR_RNDN);
- mpfr_mul_d(sum, sum, -1e3, MPFR_RNDN);
-    mpfr_set(potential_energy_, sum, MPFR_RNDN); 
+     mpfr_div_d(sum2, sum2, 2, MPFR_RNDN);
 
-    mpfr_set_zero(sum, 0); 
-    mpfr_add(sum, cinetic_energy_, potential_energy_, MPFR_RNDN);
-    mpfr_set(mechanic_energy_, sum, MPFR_RNDN); 
-    mpfr_add(sum, mechanic_energy_, lost_energy_, MPFR_RNDN);
-    mpfr_set(total_energy_, sum, MPFR_RNDN); 
+ mpfr_mul_d(sum2, sum2, -1e3, MPFR_RNDN);
+ potential_energy_ = mpfr_get_d(sum2, MPFR_RNDN);
+
+    mpfr_add(sum, sum, sum2, MPFR_RNDN);
+ mechanic_energy_ = mpfr_get_d(sum2, MPFR_RNDN);
+        mpfr_clear(sum2);
+
+
+
+      mpfr_t temp;
+      mpfr_init2(temp, 128);
+      
+      mpfr_set_d(temp, lost_energy_, MPFR_RNDN);
+
     
+    mpfr_add(sum, sum, temp, MPFR_RNDN);
+ total_energy_ = mpfr_get_d(sum, MPFR_RNDN);
+        mpfr_clear(temp);
         mpfr_clear(sum);
 
+  mpfr_free_cache ();
 
 
+
+   
 }
+
+
 void U::Universe::setInitialEnergy(){
-   mpfr_set(initial_energy_, mechanic_energy_, MPFR_RNDN); 
-    mpfr_set_zero(lost_energy_, 0); 
-*/
+initial_energy_=total_energy_;
+lost_energy_=0;
+
 
 }

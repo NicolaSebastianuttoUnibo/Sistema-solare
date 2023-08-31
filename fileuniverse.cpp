@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-#include "Graphics.hpp"
+#include "Graphic.hpp"
 #include "universe.hpp"
 
 bool onlyspaces(const std::string &s) {
@@ -28,20 +28,20 @@ bool isValidLine(const std::string &line) {
 
 U::FileUniverse::FileUniverse(U::Newton const &newton, std::string str,
                               bool alreadyexistsfortheuser)
-    : Universe(newton), file_{str + ".txt"} {
+    : Universe(newton), file_{str + ".sss"} {
   std::ifstream file{file_};
   if (alreadyexistsfortheuser) {
     if (file.good()) {
       download();
     } else {
-      throw std::runtime_error("Il file NON esiste \n");
+      throw std::runtime_error("The file doesn't exist \n");
     }
 
   }
 
   else {  /// for the user the file doesn't exist
     if (file.good()) {
-      throw std::runtime_error("Il file esiste già\n");
+      throw std::runtime_error("The file already exists\n");
       file.close();
     }
   }
@@ -53,8 +53,7 @@ void U::FileUniverse::push_back(G::PlanetState const &ps) {
   std::ofstream outputFile(file_, std::ios::app);
 
   if (!outputFile.is_open()) {
-    throw std::runtime_error("Impossibile aprire il file per inserire pianeta" +
-                             file_);
+    throw std::runtime_error("Impossible to open the file and insert the planet");
   }
 
   outputFile << "\n"
@@ -68,15 +67,14 @@ bool U::FileUniverse::isValidFile(const std::string &filename) {
 
   if (!inputFile) {
     throw std::runtime_error(
-        "Impossibile aprire il file per verificare se il file è scritto "
-        "correttamente");
+        "Impossible to open the file and verify if it is written correctly");
     return false;
   }
 
   std::string line;
   while (std::getline(inputFile, line)) {
     if (!isValidLine(line)) {
-      throw std::runtime_error("Il file contiene righe non valide");
+      throw std::runtime_error("The file contains line(s) not valid");
 
       return false;
     }
@@ -94,9 +92,9 @@ unsigned int U::FileUniverse::countPlanets(const std::string &filename) {
   std::ifstream inputFile(filename);
 
   if (!inputFile) {
-    throw std::runtime_error("Impossibile aprire il file " + file_ +
-                             "durante il conteggio");
-    return -1;  // Valore negativo per indicare errore
+    throw std::runtime_error("impossible  to open the file " + file_ +
+                             " dueing the count of the planet");
+    return -1;
   }
 
   int planetCount = 0;
@@ -105,7 +103,7 @@ unsigned int U::FileUniverse::countPlanets(const std::string &filename) {
   while (std::getline(inputFile, line)) {
     if (!line.empty() && !onlyspaces(line)) {
       planetCount++;
-    }  /// se la riga non è vuota
+    }  /// if the file is not empty
   }
 
   return planetCount;
@@ -118,7 +116,7 @@ void U::FileUniverse::download() {
   std::ifstream inputFile(file_);
 
   if (!inputFile) {
-    throw std::runtime_error("Impossibile aprire il file durante il download");
+    throw std::runtime_error("Impossible to open the file during download");
   }
 
   while (std::getline(inputFile, line)) {
@@ -130,16 +128,14 @@ void U::FileUniverse::download() {
       G::PlanetState p{a, b, c, d, e, f, s};
       U::Universe::push_back(p);
 
-    }  /// se la riga non è vuota
+    }  /// if the line is not empty
 
   }  // fine while
   if (U::FileUniverse::countPlanets(file_) == U::FileUniverse::size()) {
     return;
   } else {
-    throw std::runtime_error("Numer");
-    // throw std::runtime_error("Il numero dei pianeti nel
-    // file("+std::to_string(U::FileUniverse::countPlanets(file_))+") e nel
-    // programma("+std::to_string(U::FileUniverse::size())+") sono diversi");
+    throw std::runtime_error("The number of the planets configured are different from the the number of the planets in the file");
+    
   }
 }
 
@@ -155,7 +151,7 @@ void U::FileUniverse::save() {
 
     outFile.close();
   } else {
-    throw std::runtime_error("Impossibile aprire il file " + file_ + "\n");
+    throw std::runtime_error("Impossible to open" + file_ );
   }
 }
 

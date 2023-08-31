@@ -2,99 +2,69 @@
 #include <string>
 #include "doctest.h"
 #include "universe.hpp"
+TEST_CASE("COLLISIONS") {
 
-TEST_CASE("Testing planet collision in Universe") {
+
+SUBCASE("Test in static collisions") {
+
+
+
+
+ U::Newton n{};
+ U::Universe u(n);
+ G::PlanetState p1{1e10, 0, 0, 0, 0, 0};
+ G::PlanetState p2{1e10, 0, 0, 0, 0, 0};
+ u.push_back(p1);
+ u.push_back(p2);
+
+  CHECK(u.size() == doctest::Approx(2));
+u.evolve(0);
+CHECK(u.size() == doctest::Approx(1));
+
+ U::Universe universe(n);
+ 
+ G::PlanetState p3{1e10, 1000, 0, 0, 0,50};
+ G::PlanetState p4{1e10, 0, 0, 0, 0,50};
+ G::PlanetState p5{1e34, 100, 0, 0, 0, 60};
+ u.push_back(p3);
+ u.push_back(p4);
+ u.push_back(p5);
+
+
+
+  CHECK(universe.size() == doctest::Approx(2));
+  u.evolve(0);
+ CHECK(universe.size() == doctest::Approx(1));
+ 
+}
+
+SUBCASE("Testing collision in dinamic collision") {
    
    U::Newton newton;
     U::Universe universe(newton);
 
-    G::PlanetState planet1;
-    planet1.x = 0.0;
-    planet1.y = 0.0;
-    planet1.r = 2.0;
+    G::PlanetState planet1{10,0,0,1,0,10};
+    G::PlanetState planet2{100,200,0,0,0,50};
 
-    G::PlanetState planet2;
-    planet2.x = 6.0;
-    planet2.y = 0.0;
-    planet2.r = 3.0;
 
     universe.galaxy_.push_back(planet1);
     universe.galaxy_.push_back(planet2);
 
-    double distance_squared = newton.d_2(planet1, planet2);
-    double sum_of_radii_squared = newton.r_2(planet1, planet2);
+for(int i=0;i<1e5;i++){
+    universe.evolve(0.1);
+}
 
-    if (distance_squared <= sum_of_radii_squared) {
-        // The planets collide
-        CHECK(true);
-    } else {
-        // The planets do not collide
-        CHECK(false);
-    }
+
+    CHECK(1 == doctest::Approx(universe.size()));
+    CHECK(110 == doctest::Approx(universe[0].m));
+    CHECK(100.49875 == doctest::Approx(universe[0].r));
+
+
+
+ 
+
 }
 
 
 
-/*SUBCASE ("Secondcase"){
-   U::Newton newton;
-    U::Universe universe(newton);
-
-    G::PlanetState planet1;
-    planet1.x = 1.0;
-    planet1.y = 2.0;
-    planet1.r = 3.0;
-
-    G::PlanetState planet2;
-    planet2.x = 4.0;
-    planet2.y = 5.0;
-    planet2.r = 6.0;
-
-    universe.galaxy_.push_back(planet1);
-    universe.galaxy_.push_back(planet2);
-
-    double distance_squared = newton.d_2(planet1, planet2);
-    double sum_of_radii_squared = newton.r_2(planet1, planet2);
-
-    if (distance_squared <= sum_of_radii_squared) {
-        // The planets collide
-        CHECK(true);
-    } else {
-        // The planets do not collide
-        CHECK(false);
-    }
-}*/
-
-
-
-/*#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "doctest.h"
-#include "universe.hpp"
-
-TEST_CASE("Testing planet collision verification in Universe") {
-    U::Newton newton;
-    U::Universe universe(newton);
-
-    // Inserisci i dati dei pianeti
-    G::PlanetState planet1;
-    planet1.x = 0.0;
-    planet1.y = 0.0;
-    planet1.r = 2.0;
-    universe.galaxy_.push_back(planet1);
-
-    G::PlanetState planet2;
-    planet2.x = 6.0;
-    planet2.y = 0.0;
-    planet2.r = 3.0;
-    universe.galaxy_.push_back(planet2);
-
-    // Verifica manuale del risultato
-    double distance_squared = newton.d_2(planet1, planet2);
-    double sum_of_radii_squared = newton.r_2(planet1, planet2);
-    bool expected_collision = (distance_squared <= sum_of_radii_squared);
-
-    // Esegui il calcolo nel programma e confronta con il risultato atteso
-    bool actual_collision = (distance_squared <= sum_of_radii_squared);
-
-    CHECK(actual_collision == expected_collision);
-}*/
-
+}

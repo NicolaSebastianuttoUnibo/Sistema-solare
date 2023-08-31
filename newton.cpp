@@ -19,13 +19,15 @@ f_x = f * (b.x - a.x) / std::sqrt(distance);
 f_y = f * (b.y - a.y) / std::sqrt(distance);
 }
 
+
+///DISTANCE SQUARED
  double U::Newton::d_2(G::PlanetState const& a, G::PlanetState const& b){
  double  r = (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
   assert (r>=0);
   return r;
   
 }
-
+///MINIMUM DISTANCE SQUARED
 double U::Newton::r_2(G::PlanetState const& a, G::PlanetState const& b){
   double r = (a.r + b.r) * (a.r + b.r);
   assert (r>=0);
@@ -33,15 +35,6 @@ double U::Newton::r_2(G::PlanetState const& a, G::PlanetState const& b){
 }
 
 
-void G::PlanetState::setPlanetTexture( std::string texturePath, sf::Texture* pointer) {
-         stringtexture = texturePath;
-         texture = pointer;
-       if(pointer==nullptr){
-   throw std::runtime_error("nullpointer");}
-
-
-     
-  }
 
 
 

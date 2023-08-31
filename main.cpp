@@ -12,6 +12,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <ctime>
+
 
 #include "Graphic.hpp"
 #include "universe.hpp"
@@ -19,7 +21,7 @@
 
 int main() {
   U::Newton newton{};
-
+int count;
 std::vector<sf::Color> colors = {
     sf::Color(255,255,0), sf::Color(255,0,255), sf::Color(0,255,255), sf::Color(255,100,0),
     sf::Color(100,0,255), sf::Color(100,255,0), sf::Color(100,255,0), sf::Color(255,0,100)};
@@ -48,9 +50,9 @@ std::vector<sf::Color> colors = {
 
 sf::VertexArray traj(sf::Points); ///planet trajectories
 
-std::vector<std::string> choice = {"Set\nmass(M)",     "Set\npos(P)",
-                                     "Set\nvelocity(V)", "Set\nradius(R)",
-                                     "Set\ntexture(T)",  "Delete(X)"};
+std::vector<std::string> choice = {"Set mass (M)",     "Set pos (P)",
+                                     "Set velocity (V)", "Set radius (R)",
+                                     "Set texture (T)",  "Delete (X)"};
 
   sf::Vector2f camera{400, 400};  // camera position
 
@@ -64,9 +66,14 @@ std::vector<std::string> choice = {"Set\nmass(M)",     "Set\npos(P)",
   std::shared_ptr<gr::TM> tm;
 
   std::string response;
-  int month;
-  int year;
-  int day{1};
+
+int day=1;
+    std::time_t t = std::time(nullptr); 
+    std::tm* now = std::localtime(&t); 
+    int year = now->tm_year + 1900; 
+    int month = now->tm_mon; 
+
+
 std::vector<std::string> months = {"January","Febraury","March","April","May","June","July","August","September","Optober","November","December"};
 
 
@@ -79,22 +86,12 @@ std::vector<std::string> months = {"January","Febraury","March","April","May","J
       throw std::runtime_error("font non caricato");
     }
 
-std::cout<<"Which year is this?\n";
-std::cin>>year;
- if (!std::cin||year<0) {
-            throw std::runtime_error("Year not valid");
-        }
-std::cout<<"Which month is this?(1-12)\n";
-std::cin>>month;
- if (!std::cin||month<=0||month>12) {
-            throw std::runtime_error("Month not valid");
-        }
 
     std::cout << "Do you want to open an existing file (o) or do you want to "
                  "create a new one (c)?";
     std::cin >> response;
     if (response == "o" || response == "open") {
-      std::cout << "\nChoose the file you want to open (WITHOUT '.txt')\n";
+      std::cout << "\nChoose the file you want to open (WITHOUT '.sss')\n";
       std::cin >> response;
      
 
@@ -105,7 +102,7 @@ std::cin>>month;
     }
 
     else if (response == "c" || response == "create") {
-      std::cout << "\nChoose the name of the new file(WITHOUT '.txt')\n";
+      std::cout << "\nChoose the name of the new file(WITHOUT '.sss')\n";
       std::cin >> response;
 
       ptr = std::make_shared<U::FileUniverse>(newton, response, false);
@@ -127,11 +124,11 @@ std::cin>>month;
     camera.y = -(*ptr)[0].y + 400;
   }
 
-  sf::RenderWindow window(sf::VideoMode(800, 800), response + ".txt");
+  sf::RenderWindow window(sf::VideoMode(800, 800), response + ".sss");
   sf::FloatRect visibleArea(0, 0, window.getSize().x, window.getSize().y);
   window.setFramerateLimit(48);
   sf::RenderWindow evolvewindow(sf::VideoMode(800, 800),
-                                "animation of " + response + ".txt");
+                                "animation of " + response + ".sss");
   evolvewindow.setFramerateLimit(48);
 
   sf::RenderTexture renderTexture;
@@ -141,17 +138,17 @@ std::cin>>month;
 
  gr::Button save_button(sf::Vector2f(0, 0), sf::Vector2f(150, 90), "Save",
                      sf::Color::Yellow, sf::Color::Black, font, true);
- gr::Button add_button(sf::Vector2f(160, 0), sf::Vector2f(150, 90), "Add\nplanet",
+ gr::Button add_button(sf::Vector2f(160, 0), sf::Vector2f(150, 90), "Add planet",
                     sf::Color::Yellow, sf::Color::Black, font, true);
  gr::Button select_button(sf::Vector2f(320, 0), sf::Vector2f(150, 90),
-                       "Select\nplanet", sf::Color::Yellow, sf::Color::Black,
+                       "Select planet", sf::Color::Yellow, sf::Color::Black,
                        font, true);
  gr::Button next_button(sf::Vector2f(480, 0), sf::Vector2f(150, 90),
-                     "Next\nplanet", sf::Color::Yellow, sf::Color::Black, font,
+                     "Next planet", sf::Color::Yellow, sf::Color::Black, font,
                      false);
- gr::Button data_button(sf::Vector2f(480, 90), sf::Vector2f(150, 90), "Mass",
+ gr::Button data_button(sf::Vector2f(640, 0), sf::Vector2f(150, 90), "Set mass (M)",
                      sf::Color::Yellow, sf::Color::Black, font, false);
- gr::Button evolve_button(sf::Vector2f(640, 0), sf::Vector2f(150, 90), "Animation",
+ gr::Button evolve_button(sf::Vector2f(480, 0), sf::Vector2f(150, 90), "Animation",
                        sf::Color::Yellow, sf::Color::Black, font, true);
 
  gr::Button error_button(
@@ -159,12 +156,12 @@ std::cin>>month;
       sf::Vector2f(200, 100), "Add a planet", sf::Color::Transparent,
       sf::Color::Red, font, false);
 
-  text.setCharacterSize(25);
+  text.setCharacterSize(15);
   text.setFillColor(sf::Color::White);
   text.setFont(font);
   text.setPosition(5, 90);
 
-  text2.setCharacterSize(25);
+  text2.setCharacterSize(15);
   text2.setFillColor(sf::Color::White);
   text2.setFont(font);
   text2.setPosition(0, 0);
@@ -195,7 +192,7 @@ windows_open:
             } 
             else {
 
-            //  (*ptr).lost_energy_=0.;
+            
               (*ptr).calculateenergy();
               (*ptr).setInitialEnergy();
 
@@ -220,7 +217,9 @@ windows_open:
             selected = false;
             selecting = false;
             choosingvalue=false;
+            next_button.hide();
             (*ptr).save();
+            select_button.setText("Select planet");
             evolve_button.show();
           }
 
@@ -246,13 +245,13 @@ windows_open:
             }
             if (selecting) {
               planetIndex = 0;
-              select_button.setText("Unselect\nplanet");
+              select_button.setText("Unselect planet");
               next_button.show();
               selected = false;
               choosingvalue=false;
 
             } else {
-              select_button.setText("Select\nplanet");
+              select_button.setText("Select planet");
               selected = false;
               choosingvalue=false;
               next_button.hide();
@@ -294,8 +293,8 @@ windows_open:
               }
 
               if (var == 2) {
-                (*ptr)[planetIndex].v_x = mousePosition.x - camera.x - (*ptr)[planetIndex].x;
-                (*ptr)[planetIndex].v_y = mousePosition.y - camera.y - (*ptr)[planetIndex].y;
+                (*ptr)[planetIndex].v_x = (mousePosition.x - camera.x - (*ptr)[planetIndex].x)/500;
+                (*ptr)[planetIndex].v_y = (mousePosition.y - camera.y - (*ptr)[planetIndex].y)/500;
               }
 
             }
@@ -433,6 +432,7 @@ windows_open:
 
 
       if (choosingvalue) {
+        try{
         double a;
 
         std::string t;
@@ -443,8 +443,12 @@ windows_open:
             window.setVisible(false);
             std::cout << "Choose mass: ";
             std::cin >> a;
+            if (a<=0||!std::cin) {
+            throw std::runtime_error("Mass not valid");
+        }
             (*ptr)[planetIndex].m = a;
             choosingvalue = false;
+             
 
             break;
 
@@ -454,6 +458,9 @@ windows_open:
             window.setVisible(false);
             std::cout << "\nChoose rad: ";
             std::cin >> a;
+            if (!std::cin||a<=0) {
+            throw std::runtime_error("Radius not valid");
+        }
             (*ptr)[planetIndex].r = a;
             choosingvalue = false;
 
@@ -470,25 +477,42 @@ windows_open:
             (*ptr)[planetIndex].stringtexture = t;
             (*tm).tm("Folder", &(*ptr));
             choosingvalue = false;
+        
 
             break;
 
           case 5:
-            if (planetIndex < (*ptr).size()) {
-              std::cout << (*ptr).size();
+            if((*ptr).size() > 0){
               (*ptr).remove((*ptr)[planetIndex]);
             }
             if ((*ptr).size() == 0) {
-             
-              selected = false;
+              selecting=false;
+              select_button.setText("Select");
+              next_button.hide();
             }
-            std::cout << (*ptr).size();
+            else if(planetIndex>=(*ptr).size()&&(*ptr).size()!=0){
+         planetIndex--;
+            }
+
             choosingvalue = false;
+              selected = false;
             planetIndex = 0;
             break;
+
+
+
         }
         (*ptr).save();
         window.setVisible(true);
+        }
+
+
+
+
+        catch (const std::exception &e) {
+    std::cerr << "Error: " << e.what() << "\n";
+    return 1;
+  }
 
       }  /// finish getting the input
 
@@ -501,20 +525,23 @@ windows_open:
       window.clear();
 
 ////TEXT
-      std::string output = "camera_x=" + std::to_string(800 - camera.x) +
-                           "\ncamera_y=" + std::to_string(800 - camera.y);
 
-      if (selecting) {
+std::string output;
         std::ostringstream oss;
         oss << std::scientific
             << std::setprecision(2);
+        oss<<"camera_x=" + std::to_string(800 - camera.x)
+           <<"\ncamera_y=" + std::to_string(800 - camera.y);
+ output += oss.str();
+      if (selecting&&planetIndex<(*ptr).size()) {
+        
 
         oss << "\nm=" << (*ptr)[planetIndex].m << "\nx=" << (*ptr)[planetIndex].x
             << "\ny=" << (*ptr)[planetIndex].y << "\nv_x=" << (*ptr)[planetIndex].v_x
             << "\nv_y=" << (*ptr)[planetIndex].v_y << "\nr=" << (*ptr)[planetIndex].r << "\n"
-            << (*ptr)[planetIndex].stringtexture << "\ni=" << index << ",c=" << planetIndex;
+            << (*ptr)[planetIndex].stringtexture ;
 
-        output += oss.str();
+        output = oss.str();
       }
 
 
@@ -708,15 +735,21 @@ gr::drawing::drawPlanet((*ptr)[planetIndex],camera,&sf::Color::White,window,visi
 
       evolvewindow.clear();
       renderTexture.clear();
-  // if(day%50){
-  //            (*ptr).calculateenergy();
-  // }
+
     
+             (*ptr).calculateenergy();
 
-
+ if(day==730){
+   day=0;
+        if(month<11){
+          month++;
+        }
+        else {month=0;year++;}
+      }
 
        if (animation) {///the animation is on play
    day++;///
+   
 
 for(int i=0;i<100;i++){
     unsigned int s = (*ptr).size();
@@ -772,86 +805,44 @@ for(int i=0;i<100;i++){
 
         text2.setString("You are following " +
                         std::to_string(planetsfollowing.size()) +
-                        " planet(s) and you are choosing the " +
+                        " planet(s)\nand you are choosing the " +
                         std::to_string(var + 1) + s + " planet");
 
         camera.x = 400 - (*planetsfollowing[var]).x;
         camera.y = 400 - (*planetsfollowing[var]).y;
-        text2.setPosition((*ptr)[planetIndex].x - 400, (*ptr)[planetIndex].y - 400);
+        text2.setPosition((*ptr)[planetIndex].x - 400+10, (*ptr)[planetIndex].y - 400);
+  text2.setCharacterSize(15);
         renderTexture.draw(text2);
       }
 ///drawing text
  std::string output;
-  //  assert((*ptr).cinetic_energy_>=0);
-  //  assert((*ptr).potential_energy_<=0);
         std::ostringstream oss;
         oss << std::scientific
-            << std::setprecision(20);
+            << std::setprecision(2);
 
-            output=months[month-1]+" "+std::to_string(year)+"\nFPS: "+std::to_string(1.0f / elapsed.asSeconds());
-if(followOnePlanet){
+            output=months[month]+" "+std::to_string(year)+"\nFPS: "+std::to_string(1.0f / elapsed.asSeconds());
+if(followOnePlanet||createvector){
         oss << "\nm=" << (*ptr)[planetIndex].m
             << "\nvx=" << (*ptr)[planetIndex].v_x << "\nvy=" << (*ptr)[planetIndex].v_y
+            << "\nx=" << (*ptr)[planetIndex].x << "\ny=" << (*ptr)[planetIndex].y
             << "\n"<<(*ptr)[planetIndex].stringtexture;
 
         
 }else {
-  //  oss       << "\ninitial energy=" << (*ptr).initial_energy_
-  //           << "\ntotal energy=" << (*ptr).total_energy_
-  //           << "\nmechanic energy=" << (*ptr).mechanic_energy_
-  //           << "\ncinetic energy=" << (*ptr).cinetic_energy_
-  //           << "\npotential energy=" << (*ptr).potential_energy_
-  //           << "\nlost energy=" << (*ptr).lost_energy_;
-
-// size_t str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).initial_energy_);
-// char *str_initial_energy = new char[str_size + 1];
-// mpfr_snprintf(str_initial_energy, str_size + 1, "%.Rf", (*ptr).initial_energy_);
-// std::string result_initial_energy(str_initial_energy);
-// output += ("\n"+result_initial_energy + "\n");
-// delete[] str_initial_energy;
-
-// str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).total_energy_);
-// char *str_total_energy = new char[str_size + 1];
-// mpfr_snprintf(str_total_energy, str_size + 1, "%.Rf", (*ptr).total_energy_);
-// std::string result_total_energy(str_total_energy);
-// output += (result_total_energy + "\n");
-// delete[] str_total_energy;
-
-//   str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).cinetic_energy_);
-// char *str_cinetic_energy = new char[str_size + 1];
-// mpfr_snprintf(str_cinetic_energy, str_size + 1, "%.Rf", (*ptr).cinetic_energy_);
-// std::string result_cinetic_energy(str_cinetic_energy);
-// output += (result_cinetic_energy + "\n");
-// delete[] str_cinetic_energy;
-
-//   str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).potential_energy_);
-// char *str_potential_energy = new char[str_size + 1];
-// mpfr_snprintf(str_potential_energy, str_size + 1, "%.Rf", (*ptr).potential_energy_);
-// std::string result_potential_energy(str_potential_energy);
-// output += (result_potential_energy + "\n");
-// delete[] str_potential_energy;
-
-//   str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).mechanic_energy_);
-// char *str_mechanic_energy_ = new char[str_size + 1];
-// mpfr_snprintf(str_mechanic_energy_, str_size + 1, "%.Rf", (*ptr).mechanic_energy_);
-// std::string result_mechanic_energy_(str_mechanic_energy_);
-// output += (result_mechanic_energy_ + "\n");
-// delete[] str_mechanic_energy_;
-
-//   str_size = mpfr_snprintf(nullptr, 0, "%.Rf", (*ptr).lost_energy_);
-// char *str_lost_energy_ = new char[str_size + 1];
-// mpfr_snprintf(str_lost_energy_, str_size + 1, "%.Rf", (*ptr).lost_energy_);
-// std::string result_lost_energy_(str_lost_energy_);
-// output += (result_lost_energy_ + "\n");
-// delete[] str_lost_energy_;
+   oss       << "\ninitial energy=" << (*ptr).initial_energy_
+            << "\ntotal energy=" << (*ptr).total_energy_
+            << "\nmechanic energy=" << (*ptr).mechanic_energy_
+            << "\ncinetic energy=" << (*ptr).cinetic_energy_
+            << "\npotential energy=" << (*ptr).potential_energy_
+            << "\nlost energy=" << (*ptr).lost_energy_;
 
 
 }
 output += oss.str();
 
       text2.setString(output);
-      text2.setPosition(0,100);
-
+      text2.setPosition(10,(createvector ? 70 : 10));
+  text2.setCharacterSize(15);
 
 ////drawing trajectory
         renderTexture.draw(traj);
@@ -860,8 +851,11 @@ output += oss.str();
 ////drawings planet
       for (unsigned int i = 0; i < (*ptr).size(); ++i) {
       if (animation) {
-          traj.append(sf::Vertex(sf::Vector2f((*ptr)[i].x, (*ptr)[i].y),colors[i%colors.size()]));}
-
+         traj.append(sf::Vertex(sf::Vector2f((*ptr)[i].x, (*ptr)[i].y),colors[i%colors.size()]));
+       }
+count++;
+if(count>1e4){count=0;}
+std::cout<<count<<",";
 
         float r = (*ptr)[i].r;
 
@@ -894,12 +888,7 @@ output += oss.str();
 
       evolvewindow.display();
 
-      if(day%1440==0){
-        if(month<12){
-          month++;
-        }
-        else {month=1;year++;}
-      }
+      
       
     
     }

@@ -2,7 +2,9 @@
 
 
 gr::Button::Button(const sf::Vector2f& position, const sf::Vector2f& size, const std::string& text,
-              const sf::Color& buttonColor, const sf::Color& textColor, const sf::Font& font, bool b)  {
+              const sf::Color& buttonColor, const sf::Color& textColor, const sf::Font& font, bool b) :pos_{position},size_{size} {
+
+ 
  show_=b;
 
 
@@ -12,7 +14,7 @@ gr::Button::Button(const sf::Vector2f& position, const sf::Vector2f& size, const
 
 
    buttonText_.setString(text);
-   buttonText_.setCharacterSize(20);
+   buttonText_.setCharacterSize(15);
    buttonText_.setFillColor(textColor);
    buttonText_.setFont(font);
 
@@ -50,4 +52,6 @@ bool gr::Button::isVisible(){
 
 void gr::Button::setText(std::string s){
    buttonText_.setString(s);
+   buttonText_.setPosition(pos_.x + size_.x / 2 - buttonText_.getLocalBounds().width / 2,
+                          pos_.y + size_.y / 2 - buttonText_.getLocalBounds().height / 2);
 }

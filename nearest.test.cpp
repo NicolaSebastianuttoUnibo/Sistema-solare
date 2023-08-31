@@ -26,8 +26,7 @@ TEST_CASE("Testing nearest planet calculation") {
     sf::Vector2i targetPosition(2, 2);  // Generiche coordinate target
     int nearestPlanetIndex = universe.findNearestPlanet(targetPosition);
 
-    CHECK(nearestPlanetIndex ==
-          1);  // L'indice del pianeta più vicino deve essere 0
+    CHECK(nearestPlanetIndex ==1);  // L'indice del pianeta più vicino deve essere 0
   }
 }
 
@@ -73,11 +72,10 @@ SUBCASE("Third"){
   universe.push_back(planet2);
 
   SUBCASE("Check nearest planet calculation") {
-    sf::Vector2i targetPosition(0, 0);  // Generiche coordinate target
+    sf::Vector2i targetPosition(0, 05);  // Generiche coordinate target
     int nearestPlanetIndex = universe.findNearestPlanet(targetPosition);
 
-    CHECK(nearestPlanetIndex ==
-          1);  // L'indice del pianeta più vicino deve essere 0
+    CHECK(nearestPlanetIndex ==1);  // L'indice del pianeta più vicino deve essere 0
   }
 }
 
