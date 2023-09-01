@@ -8,10 +8,9 @@
 ////check energia che rimane costante
 
 
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 #include "doctest.h"
-#include "universe.hpp"
+#include "../universe.hpp"
 TEST_CASE("Testing the class handling a floating point data sample") {
 
   

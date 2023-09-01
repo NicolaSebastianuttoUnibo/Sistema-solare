@@ -16,11 +16,7 @@ struct PlanetState {
  std::string stringtexture{};
  sf::Texture *texture{};
 
-
-
-bool operator==(const PlanetState& a)const{
-  return m==a.m&&x==a.x&&y==a.y&&v_x==a.v_x&&v_y==a.v_y&&r==a.r;
-}
+bool operator==(const PlanetState& a)const;
 
 
 

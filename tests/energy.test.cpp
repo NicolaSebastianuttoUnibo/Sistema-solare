@@ -1,6 +1,5 @@
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
-#include "universe.hpp"
+#include "../universe.hpp"
 
 TEST_CASE("Testing conservation of energy") {
     SUBCASE("First test"){

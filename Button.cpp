@@ -17,9 +17,6 @@ gr::Button::Button(const sf::Vector2f& position, const sf::Vector2f& size, const
    buttonText_.setCharacterSize(15);
    buttonText_.setFillColor(textColor);
    buttonText_.setFont(font);
-
-
-   // Calculate text position to center it within the button
    buttonText_.setPosition(position.x + size.x / 2 - buttonText_.getLocalBounds().width / 2,
                           position.y + size.y / 2 - buttonText_.getLocalBounds().height / 2);
 }

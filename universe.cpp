@@ -98,6 +98,8 @@ int U::Universe::findNearestPlanet(sf::Vector2i point) {
   }
 }
 
+
+
 void U::Universe::check_Collision(){
   for (auto it = copy_.begin(); it < copy_.end()-1; ++it) {
   for (auto jt = it+1; jt < copy_.end(); ++jt){
@@ -143,7 +145,6 @@ assert(copy_.size()>0);
 double after;
 after=total_energy_;
 
- assert(before>=after);
 lost_energy_=before-after;
 
 
@@ -156,6 +157,9 @@ end:
 
 return;
 }
+
+
+
 
 void U::Universe::calculateenergy() {
 

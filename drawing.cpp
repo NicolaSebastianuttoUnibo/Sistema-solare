@@ -49,12 +49,16 @@ sf::FloatRect planetBounds(planet.x + translate.x - r, planet.y + translate.y - 
 
         circle.setPosition(planet.x+translate.x,planet.y+translate.y);
 
+
+///drawing side
 if(color!=nullptr){
         circle.setRadius(r + 3);
         circle.setOrigin(r + 3, r + 3);
         circle.setFillColor(*color);
         window.draw(circle);
 }
+
+///draw planet
   circle.setRadius(r);
   circle.setOrigin(r, r );
   circle.setFillColor(sf::Color::White);

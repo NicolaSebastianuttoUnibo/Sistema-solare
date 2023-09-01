@@ -9,7 +9,6 @@ void U::Newton::operator()(const G::PlanetState& a, const G::PlanetState& b) {
  double distance{d_2(a,b)};
  double f = G_ * a.m * b.m / (distance);
 
-
 if (distance == 0) {
   f_x = 0;
   f_y = 0;
@@ -34,6 +33,10 @@ double U::Newton::r_2(G::PlanetState const& a, G::PlanetState const& b){
   return r;
 }
 
+
+bool G::PlanetState::operator==(const PlanetState& a)const{
+  return m==a.m&&x==a.x&&y==a.y&&v_x==a.v_x&&v_y==a.v_y&&r==a.r;
+}
 
 
 

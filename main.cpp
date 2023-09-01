@@ -21,7 +21,6 @@
 
 int main() {
   U::Newton newton{};
-int count;
 std::vector<sf::Color> colors = {
     sf::Color(255,255,0), sf::Color(255,0,255), sf::Color(0,255,255), sf::Color(255,100,0),
     sf::Color(100,0,255), sf::Color(100,255,0), sf::Color(100,255,0), sf::Color(255,0,100)};
@@ -119,7 +118,7 @@ std::vector<std::string> months = {"January","Febraury","March","April","May","J
     return 1;
   }
 
-  if ((*ptr).size() > 0) {
+  if (ptr->size() > 0) {
     camera.x = -(*ptr)[0].x + 400;
     camera.y = -(*ptr)[0].y + 400;
   }
@@ -187,14 +186,14 @@ windows_open:
 
          ////EVOLVE BUTTON
           if (evolve_button.isClicked(mousePosition) && evolve_button.isVisible()) {
-            if ((*ptr).size() == 0) {
+            if (ptr->size() == 0) {
               error_button.show();
             } 
             else {
 
             
-              (*ptr).calculateenergy();
-              (*ptr).setInitialEnergy();
+              ptr->calculateenergy();
+              ptr->setInitialEnergy();
 
   
 
@@ -218,7 +217,7 @@ windows_open:
             selecting = false;
             choosingvalue=false;
             next_button.hide();
-            (*ptr).save();
+            ptr->save();
             select_button.setText("Select planet");
             evolve_button.show();
           }
@@ -227,11 +226,19 @@ windows_open:
          ///ADD BUTTON
           else if (add_button.isClicked(mousePosition) &&
                    add_button.isVisible()) {
-            G::PlanetState p{1e10, -camera.x + 400, -camera.y + 400, 0, 0,
+                    if(ptr->size()==0){
+            G::PlanetState p{1e3, -camera.x + 400, -camera.y + 400, 0, 0,
                              100,  "default"};
-            (*ptr).push_back(p);
-            (*ptr).save();
-            (*tm).tm("Folder", &(*ptr));
+            ptr->push_back(p);
+                             
+                             }
+                             else{
+G::PlanetState p{(*ptr)[planetIndex].m, -camera.x + 400, -camera.y + 400, 0, 0,
+                             (*ptr)[planetIndex].r,  "default"};
+            ptr->push_back(p);
+                             }
+            ptr->save();
+           tm->tm("Folder", &(*ptr));
           }
 
 
@@ -239,7 +246,7 @@ windows_open:
           else if (select_button.isClicked(mousePosition) &&
                    select_button.isVisible()) {
             selecting = !selecting;
-            if ((*ptr).size() == 0) {
+            if (ptr->size() == 0) {
               selecting = false;
               error_button.show();
             }
@@ -260,10 +267,10 @@ windows_open:
           }
         ////NEXT BUTTON
           else if (next_button.isClicked(mousePosition) &&
-                   next_button.isVisible() && (*ptr).size() > 0) {
+                   next_button.isVisible() && ptr->size() > 0) {
             selected = false;
             choosingvalue = false;
-            if (planetIndex < (*ptr).size() - 1) {
+            if (planetIndex < ptr->size() - 1) {
               planetIndex++;
             } else {
               planetIndex = 0;
@@ -300,7 +307,7 @@ windows_open:
             }
           ////selecting
             else if (selecting) {
-              index = (*ptr).findNearestPlanet(sf::Vector2i(
+              index = ptr->findNearestPlanet(sf::Vector2i(
                   mousePosition.x - camera.x, mousePosition.y - camera.y));
              
 
@@ -475,22 +482,22 @@ windows_open:
             std::cout << "Choose texture: ";
             std::cin >> t;
             (*ptr)[planetIndex].stringtexture = t;
-            (*tm).tm("Folder", &(*ptr));
+           tm->tm("Folder", &(*ptr));
             choosingvalue = false;
         
 
             break;
 
           case 5:
-            if((*ptr).size() > 0){
-              (*ptr).remove((*ptr)[planetIndex]);
+            if(ptr->size() > 0){
+              ptr->remove((*ptr)[planetIndex]);
             }
-            if ((*ptr).size() == 0) {
+            if (ptr->size() == 0) {
               selecting=false;
               select_button.setText("Select");
               next_button.hide();
             }
-            else if(planetIndex>=(*ptr).size()&&(*ptr).size()!=0){
+            else if(planetIndex>=ptr->size()&&ptr->size()!=0){
          planetIndex--;
             }
 
@@ -502,7 +509,7 @@ windows_open:
 
 
         }
-        (*ptr).save();
+        ptr->save();
         window.setVisible(true);
         }
 
@@ -533,7 +540,7 @@ std::string output;
         oss<<"camera_x=" + std::to_string(800 - camera.x)
            <<"\ncamera_y=" + std::to_string(800 - camera.y);
  output += oss.str();
-      if (selecting&&planetIndex<(*ptr).size()) {
+      if (selecting&&planetIndex<ptr->size()) {
         
 
         oss << "\nm=" << (*ptr)[planetIndex].m << "\nx=" << (*ptr)[planetIndex].x
@@ -549,11 +556,13 @@ std::string output;
 
 
 
-std::vector<G::PlanetState> draw=(*ptr).state();
+std::vector<G::PlanetState> draw=ptr->state();
 
-      for (auto it = draw.begin(); it < draw.end(); ++it) {
-        gr::drawing::drawPlanet(*it,camera,nullptr,window,visibleArea,selecting);
-      }  ////fine for
+for (const auto& item : draw) {
+    gr::drawing::drawPlanet(item, camera, nullptr, window, visibleArea, selecting);
+}
+
+
 
       if (selecting) {
         if (choosingvalue) {
@@ -561,7 +570,6 @@ std::vector<G::PlanetState> draw=(*ptr).state();
         } else if (selected) {
          gr::drawing::drawPlanet((*ptr)[planetIndex],camera,&sf::Color::Yellow,window,visibleArea,selecting);
         }
-
       else{
 gr::drawing::drawPlanet((*ptr)[planetIndex],camera,&sf::Color::White,window,visibleArea,selecting);
       }
@@ -601,8 +609,8 @@ gr::drawing::drawPlanet((*ptr)[planetIndex],camera,&sf::Color::White,window,visi
           animation = false;
           traj.clear();
           ptr = std::make_shared<U::FileUniverse>(newton, response, true);
-          (*ptr).save();
-          (*tm).tm("Folder", &(*ptr));
+          ptr->save();
+         tm->tm("Folder", &(*ptr));
           camera.x = -(*ptr)[0].x + 400;
           camera.y = -(*ptr)[0].y + 400;
           renderTexture.clear();
@@ -625,7 +633,7 @@ gr::drawing::drawPlanet((*ptr)[planetIndex],camera,&sf::Color::White,window,visi
             createvector = true;
             planetsfollowing.clear();
             var = 0;
-            assert(planetIndex < (*ptr).size());
+            assert(planetIndex < ptr->size());
             planetsfollowing.push_back(&(*ptr)[planetIndex]);
           }
         }
@@ -648,7 +656,7 @@ gr::drawing::drawPlanet((*ptr)[planetIndex],camera,&sf::Color::White,window,visi
             if (var < planetsfollowing.size() - 1) {
               var++;
             } else {
-              assert(planetIndex < (*ptr).size());
+              assert(planetIndex < ptr->size());
               planetsfollowing.push_back(&(*ptr)[planetIndex]);
               var++;
               assert(var < planetsfollowing.size());
@@ -658,12 +666,12 @@ gr::drawing::drawPlanet((*ptr)[planetIndex],camera,&sf::Color::White,window,visi
         }  
    ///SEE NEXT PLANET
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-          if (planetIndex < (*ptr).size() - 1) {
+          if (planetIndex < ptr->size() - 1) {
             planetIndex++;
           } else {
             planetIndex = 0;
           }
-          assert(planetIndex < (*ptr).size());
+          assert(planetIndex < ptr->size());
           if (createvector) {
             assert(var < planetsfollowing.size());
             planetsfollowing[var] = &(*ptr)[planetIndex];
@@ -674,25 +682,31 @@ gr::drawing::drawPlanet((*ptr)[planetIndex],camera,&sf::Color::White,window,visi
           if (planetIndex > 0) {
             planetIndex--;
           } else {
-            planetIndex = (*ptr).size() - 1;
+            planetIndex = ptr->size() - 1;
           }
-          assert(planetIndex < (*ptr).size());
+          assert(planetIndex < ptr->size());
           if (createvector) {
-            assert(var < (*ptr).size());
+            assert(var < ptr->size());
             planetsfollowing[var] = &(*ptr)[planetIndex];
           }
         }
 
         /////DELETE PLANET FROM PLANETS' SET
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::X)) {
+          if(!pressed){
           if (planetsfollowing.size() > 1) {
             auto it = planetsfollowing.begin() + var;
             assert(it != planetsfollowing.end());
-            if (planetIndex == planetsfollowing.size() - 1) {
-              planetIndex--;
+            if (var == planetsfollowing.size() - 1) {
+              var--;
             }
             planetsfollowing.erase((it));
+
+
+
           }
+         
+          } pressed=true;
         }
 
         ////FOLLOW THE CENTER OF PLANETS' SET
@@ -737,7 +751,7 @@ gr::drawing::drawPlanet((*ptr)[planetIndex],camera,&sf::Color::White,window,visi
       renderTexture.clear();
 
     
-             (*ptr).calculateenergy();
+             ptr->calculateenergy();
 
  if(day==730){
    day=0;
@@ -752,16 +766,16 @@ gr::drawing::drawPlanet((*ptr)[planetIndex],camera,&sf::Color::White,window,visi
    
 
 for(int i=0;i<100;i++){
-    unsigned int s = (*ptr).size();
-     assert( (*ptr).size()>0);
-        (*ptr).evolve(0.01);
-        if (s > (*ptr).size()) {
+    unsigned int s = ptr->size();
+     assert( ptr->size()>0);
+     ptr->evolve(0.01);
+        if (s > ptr->size()) {
 
           followPlanets = false;
 
-          if (planetIndex >= (*ptr).size()) {
+          if (planetIndex >= ptr->size()) {
             planetIndex--;
-            assert(planetIndex < (*ptr).size());
+            assert(planetIndex < ptr->size());
           }
         }}
        }
@@ -810,7 +824,7 @@ for(int i=0;i<100;i++){
 
         camera.x = 400 - (*planetsfollowing[var]).x;
         camera.y = 400 - (*planetsfollowing[var]).y;
-        text2.setPosition((*ptr)[planetIndex].x - 400+10, (*ptr)[planetIndex].y - 400);
+        text2.setPosition((*planetsfollowing[var]).x - 400+10, (*planetsfollowing[var]).y - 400);
   text2.setCharacterSize(15);
         renderTexture.draw(text2);
       }
@@ -821,27 +835,37 @@ for(int i=0;i<100;i++){
             << std::setprecision(2);
 
             output=months[month]+" "+std::to_string(year)+"\nFPS: "+std::to_string(1.0f / elapsed.asSeconds());
-if(followOnePlanet||createvector){
+if(followOnePlanet){
         oss << "\nm=" << (*ptr)[planetIndex].m
             << "\nvx=" << (*ptr)[planetIndex].v_x << "\nvy=" << (*ptr)[planetIndex].v_y
             << "\nx=" << (*ptr)[planetIndex].x << "\ny=" << (*ptr)[planetIndex].y
             << "\n"<<(*ptr)[planetIndex].stringtexture;
 
         
-}else {
-   oss       << "\ninitial energy=" << (*ptr).initial_energy_
-            << "\ntotal energy=" << (*ptr).total_energy_
-            << "\nmechanic energy=" << (*ptr).mechanic_energy_
-            << "\ncinetic energy=" << (*ptr).cinetic_energy_
-            << "\npotential energy=" << (*ptr).potential_energy_
-            << "\nlost energy=" << (*ptr).lost_energy_;
+}
+else if(createvector){
+        oss << "\nm=" <<  (*planetsfollowing[var]).m
+            << "\nvx=" <<  (*planetsfollowing[var]).v_x << "\nvy=" <<  (*planetsfollowing[var]).v_y
+            << "\nx=" <<  (*planetsfollowing[var]).x << "\ny=" <<  (*planetsfollowing[var]).y
+            << "\n"<< (*planetsfollowing[var]).stringtexture;
+
+        
+}
+
+else {
+   oss       << "\ninitial energy=" << ptr->initial_energy_
+            << "\ntotal energy=" << ptr->total_energy_
+            << "\nmechanic energy=" << ptr->mechanic_energy_
+            << "\ncinetic energy=" << ptr->cinetic_energy_
+            << "\npotential energy=" << ptr->potential_energy_
+            << "\nlost energy=" << ptr->lost_energy_;
 
 
 }
 output += oss.str();
 
       text2.setString(output);
-      text2.setPosition(10,(createvector ? 70 : 10));
+      text2.setPosition(10,(createvector ? 40 : 10));
   text2.setCharacterSize(15);
 
 ////drawing trajectory
@@ -849,13 +873,12 @@ output += oss.str();
       
 
 ////drawings planet
-      for (unsigned int i = 0; i < (*ptr).size(); ++i) {
+std::vector<G::PlanetState> draw=ptr->state();
+
+  for (unsigned int i = 0; i < (*ptr).size(); ++i) {
       if (animation) {
          traj.append(sf::Vertex(sf::Vector2f((*ptr)[i].x, (*ptr)[i].y),colors[i%colors.size()]));
        }
-count++;
-if(count>1e4){count=0;}
-std::cout<<count<<",";
 
         float r = (*ptr)[i].r;
 
@@ -874,6 +897,7 @@ std::cout<<count<<",";
         }
 
       }
+
 
 
      ///adjusting display

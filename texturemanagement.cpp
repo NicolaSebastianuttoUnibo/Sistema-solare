@@ -36,15 +36,16 @@ for(const auto& entry : std::filesystem::directory_iterator(folder)){
 else{
    throw std::runtime_error("Not find the folder");
 }
-  
-   for(unsigned int i=0;i<texture_name_.size();++i){
+
+for (const auto& textureName : texture_name_) {
 sf::Texture texture;
-  if (!texture.loadFromFile(folder+"/"+texture_name_[i]))
+  if (!texture.loadFromFile(folder+"/"+textureName))
 {
   throw std::runtime_error("Failed to load  a texture from the folder "+folder); // Throw an exception to handle the error.
  }
 
 texture_vector_.push_back(texture);
+
 }
  }
 
@@ -57,13 +58,12 @@ if(texture_vector_.size()!=texture_name_.size()){
 ////ASSIGNING TEXTURES TO THE PLANETS
 
    assert(texture_vector_.size()!=0);
-for(unsigned int i=0;i<(*universe).size();++i){
+for(unsigned int i=0;i<(universe->size());++i){
    auto it=std::find(texture_name_.begin(),texture_name_.end(),  (*universe)[i].stringtexture);
 unsigned int idx=std::distance(texture_name_.begin(),it);
 
 if(idx<texture_name_.size()){
 (*universe)[i].texture=&texture_vector_[idx];
-//  (*universe)[i].setPlanetTexture((*universe)[i].stringtexture,&texture_vector_[idx]);
 }
 else {////if the string chosen by the user is wrong
 
