@@ -33,9 +33,6 @@ if (BUILD_TESTING)
 
 add_executable(all.t tests/all.test.cpp tests/distance.test.cpp tests/newton.test.cpp tests/nearest.test.cpp tests/file.test.cpp tests/energy.test.cpp tests/collision.test.cpp drawing.cpp texturemanagement.cpp  newton.cpp universe.cpp fileuniverse.cpp Button.cpp )
 
-#add_executable(all.t tests/all.test.cpp  tests/distance.test.cpp tests/newton.test.cpp tests/nearest.test.cpp tests/file.test.cpp tests/energy.test.cpp tests/collision.test.cpp drawing.cpp texturemanagement.cpp  newton.cpp universe.cpp fileuniverse.cpp Button.cpp )
-#add_executable(all.t tests/all.test.cpp  tests/distance.test.cpp  drawing.cpp texturemanagement.cpp  newton.cpp universe.cpp fileuniverse.cpp Button.cpp )
-
 target_link_libraries(all.t  -lsfml-graphics -lsfml-window -lsfml-system mpfr)
 add_test(NAME all.t COMMAND all.t)
 

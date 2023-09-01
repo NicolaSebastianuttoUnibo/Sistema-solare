@@ -53,7 +53,8 @@ void U::FileUniverse::push_back(G::PlanetState const &ps) {
   std::ofstream outputFile(file_, std::ios::app);
 
   if (!outputFile.is_open()) {
-    throw std::runtime_error("Impossible to open the file and insert the planet");
+    throw std::runtime_error(
+        "Impossible to open the file and insert the planet");
   }
 
   outputFile << "\n"
@@ -134,8 +135,9 @@ void U::FileUniverse::download() {
   if (U::FileUniverse::countPlanets(file_) == U::FileUniverse::size()) {
     return;
   } else {
-    throw std::runtime_error("The number of the planets configured are different from the the number of the planets in the file");
-    
+    throw std::runtime_error(
+        "The number of the planets configured are different from the the "
+        "number of the planets in the file");
   }
 }
 
@@ -151,7 +153,6 @@ void U::FileUniverse::save() {
 
     outFile.close();
   } else {
-    throw std::runtime_error("Impossible to open" + file_ );
+    throw std::runtime_error("Impossible to open" + file_);
   }
 }
-
