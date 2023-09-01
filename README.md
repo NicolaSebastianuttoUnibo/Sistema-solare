@@ -4,10 +4,7 @@ In this project, we create a simulation of the solar system. The initial interac
 
 ## Implementive Choices
 
-In this paragraph, we explore the implementation of Newton's laws. Specifically, the formula
-$
-F = \frac{G \cdot m_1 \cdot m_2}{d^2}
-$
+In this paragraph, we explore the implementation of Newton's laws. Specifically, the formula $F = \frac{G \cdot m_1 \cdot m_2}{d^2}$
 , representing gravitational force, is used. For each iteration of the simulation, all gravitational forces acting on every planet are calculated, summed, and meticulously considered individually. This precise approach ensures accurate modeling of the motion and interactions of each planet within the system. The simulation also checks  potential collisions. When a collision is detected, a certain amount of energy is dissipated in the form of heat and deformation. This approach allows tracking of energy dissipation and verifies energy conservation within the system. During a collision event, it was decided that the two planets involved undergo a completely inelastic collision, merging and moving together as one entity.
 
 To maintain a practical scale, it was chosen that 1 pixel represents 1 million kilometers, ensuring most planetary orbits fit within the interface. Given that distances between planets are orders of magnitude greater than their sizes, users are advised to input radii greater than 1 (even if less than 10^9 meters). Additionally, a time scale of 1 time unit equals to 1 hour was selected, allowing planets to complete their orbits within reasonable timeframes. Masses were scaled to 10^27 kg to prevent numerical underflow or overflow issues during calculations, ensuring results remain within a reasonable range.
