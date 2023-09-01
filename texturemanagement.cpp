@@ -26,7 +26,7 @@ void  gr::TM::loadAndAssignTextures(std::string folder, U::Universe *universe){
   assert(texture_name_.size()==0);
 if(std::filesystem::is_directory(folder)){
 for(const auto& entry : std::filesystem::directory_iterator(folder)){
-   if(entry.is_regular_file()&&(entry.path().extension()==".png"||entry.path().extension()==".jpg")){
+   if(entry.is_regular_file()&&(entry.path().extension()==".png")){
    texture_name_.push_back(entry.path().filename().string());
    }
 
@@ -67,7 +67,7 @@ if(idx<texture_name_.size()){
 }
 else {////if the string chosen by the user is wrong
 
-   std::string standardimage="standard.jpg";
+   std::string standardimage="standard.png";
    ////I create a string and don't repeat the string name of the standard image
    //// in order to have more control (no digit error)
    assert( (*universe)[i].stringtexture!=standardimage);

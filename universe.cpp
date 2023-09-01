@@ -124,14 +124,8 @@ G::PlanetState p{M,X/M, Y/M, VX/M, VY/M, R, (  ((*it).m > (*jt).m) ? (*it).strin
 before=total_energy_;
 unsigned int s = copy_.size();
 
-auto kt = std::find(copy_.begin(), copy_.end(), (*it));
- assert(kt!=copy_.end());
-    copy_.erase(kt);
-
-
-auto lt = std::find(copy_.begin(), copy_.end(), (*jt));
- assert(lt!=copy_.end());
-    copy_.erase(lt);
+    copy_.erase(jt);
+    copy_.erase(it);
 
  copy_.push_back(p);
 
