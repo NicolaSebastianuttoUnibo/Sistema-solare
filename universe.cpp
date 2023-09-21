@@ -94,6 +94,10 @@ void U::Universe::check_Collision() {
   for (auto it = copy_.begin(); it < copy_.end() - 1; ++it) {
     for (auto jt = it + 1; jt < copy_.end(); ++jt) {
       if (newton_.d_2((*it), (*jt)) <= newton_.r_2((*it), (*jt))) {
+
+
+
+
         double M = ((*it).m + (*jt).m);
         double X = ((*it).m * (*it).x + (*jt).m * (*jt).x);
         double Y = ((*it).m * (*it).y + (*jt).m * (*jt).y);
@@ -110,18 +114,21 @@ void U::Universe::check_Collision() {
             R,
             (((*it).m > (*jt).m) ? (*it).stringtexture : (*jt).stringtexture),
             (((*it).m > (*jt).m) ? (*it).texture : (*jt).texture)};
+
         double before;
 
         calculateenergy();
         before = total_energy_;
-        unsigned int s = copy_.size();
+        std::cout<<std::to_string(before)<<"\n";
+
+
+
 
         copy_.erase(jt);
         copy_.erase(it);
 
         copy_.push_back(p);
 
-        assert(copy_.size() == s - 1);
         assert(copy_.size() > 0);
 
         galaxy_ = copy_;
@@ -129,14 +136,13 @@ void U::Universe::check_Collision() {
         calculateenergy();
         double after;
         after = total_energy_;
+        std::cout<<std::to_string(after)<<"\n";
 
-        lost_energy_ = before - after;
 
-        goto end;
+        lost_energy_ += (before - after);
       }
     }
   }
-end:
 
   return;
 }
@@ -175,6 +181,10 @@ void U::Universe::calculateenergy() {
 
   mpfr_mul_d(sum, sum, 1e3, MPFR_RNDN);
   cinetic_energy_ = mpfr_get_d(sum, MPFR_RNDN);
+assert(cinetic_energy_>=0); 
+
+
+
 
   mpfr_t sum2;
   mpfr_init2(sum2, 128);
@@ -242,9 +252,10 @@ void U::Universe::calculateenergy() {
 
   mpfr_mul_d(sum2, sum2, -1e3, MPFR_RNDN);
   potential_energy_ = mpfr_get_d(sum2, MPFR_RNDN);
+assert(potential_energy_<=0); 
 
   mpfr_add(sum, sum, sum2, MPFR_RNDN);
-  mechanic_energy_ = mpfr_get_d(sum2, MPFR_RNDN);
+  mechanic_energy_ = mpfr_get_d(sum, MPFR_RNDN);
   mpfr_clear(sum2);
 
   mpfr_t temp;

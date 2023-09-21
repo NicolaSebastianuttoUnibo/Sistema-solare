@@ -36,8 +36,8 @@ TEST_CASE("COLLISIONS") {
     G::PlanetState planet1{10, 0, 0, 1, 0, 10};
     G::PlanetState planet2{100, 200, 0, 0, 0, 50};
 
-    universe.galaxy_.push_back(planet1);
-    universe.galaxy_.push_back(planet2);
+    universe.push_back(planet1);
+    universe.push_back(planet2);
 
     for (int i = 0; i < 1e5; i++) {
       universe.evolve(0.1);

@@ -22,19 +22,25 @@ struct Newton {
 
 class FileUniverse;  /// forward declaration
 class Universe {
-  Newton newton_;
-  std::vector<G::PlanetState> copy_;
+  
+
+
   G::PlanetState solve(G::PlanetState const &ps, double fx, double fy,
                        double delta_t) const;
 
-  std::vector<G::PlanetState *> importantplanet_;
 
   void check_Collision();
 
- public:
-  std::vector<G::PlanetState> galaxy_;
+protected:
+  Newton newton_;
+std::vector<G::PlanetState> galaxy_;
+  std::vector<G::PlanetState> copy_;
 
-  double initial_energy_;
+
+
+ public:
+
+   double initial_energy_;
   double cinetic_energy_;
   double potential_energy_;
   double mechanic_energy_;
@@ -45,6 +51,7 @@ class Universe {
   void setInitialEnergy();
 
   Universe(Newton const &newton);
+
 
   void push_back(G::PlanetState const &ps);
   void remove(G::PlanetState const &ps);
@@ -63,7 +70,6 @@ class FileUniverse : public Universe {
   std::string file_;
   bool isValidFile(const std::string &filename);
   unsigned int countPlanets(const std::string &filename);
-  std::vector<G::PlanetState> copy_;
 
  public:
   FileUniverse(Newton const &newton, std::string str, bool a);

@@ -30,12 +30,12 @@ int main() {
 
   bool firstwindow{true};  /// the first window is shown
 
-  bool followOnePlanet;  /// during the animation the camera follows one planet
-  bool followPlanets;    /// during theanimation the camera follows the centroid
+  bool followOnePlanet{false};  /// during the animation the camera follows one planet
+  bool followPlanets{false};    /// during theanimation the camera follows the centroid
                          /// of a planets' set
-  std::vector<G::PlanetState *> planetsfollowing;  /// vector of the planets'
+  std::vector<G::PlanetState *> planetsfollowing{};  /// vector of the planets'
                                                    /// set
-  bool createvector;  /// indicates if you are currently creating a set of
+  bool createvector{false};  /// indicates if you are currently creating a set of
                       /// planets.
   bool animation{
       false};  // indicates if the animation is on play(true) or pause(false)
@@ -47,7 +47,7 @@ int main() {
   /// Fist window: choose which variable of the planet you want to change
   /// Second window: indicating the position of the planet in the planets'set
 
-  unsigned int index;  /// index of the nearest planet from the mouse
+  unsigned int index{0};  /// index of the nearest planet from the mouse
 
   sf::VertexArray traj(sf::Points);  /// planet trajectories
 
@@ -63,8 +63,8 @@ int main() {
   sf::Text text;
   sf::Text text2;
 
-  std::shared_ptr<U::FileUniverse> ptr;
-  std::shared_ptr<gr::TM> tm;
+  std::shared_ptr<U::FileUniverse> ptr{};
+  std::shared_ptr<gr::TM> tm{};
 
   std::string response;
 
@@ -78,12 +78,12 @@ int main() {
       "January", "Febraury", "March",     "April",   "May",      "June",
       "July",    "August",   "September", "Optober", "November", "December"};
 
-  sf::Clock clock;
-  sf::Time elapsed;
+  sf::Clock clock{};
+  sf::Time elapsed{};
 
   try {
     if (!font.loadFromFile("Arial.ttf")) {
-      throw std::runtime_error("font non caricato");
+      throw std::runtime_error("font is not  loaded");
     }
 
     std::cout << "Do you want to open an existing file (o) or do you want to "
@@ -167,7 +167,6 @@ int main() {
   text2.setFont(font);
   text2.setPosition(0, 0);
 
-windows_open:
   while (window.isOpen() || window.isOpen()) {
     if (firstwindow) {
       sf::Event event;
@@ -424,6 +423,7 @@ windows_open:
       }  ////END of pollEvent
 
       if (choosingvalue) {
+         int returnCode{0};
         try {
           double a;
 
@@ -461,7 +461,14 @@ windows_open:
               choosingvalue = true;
 
               window.setVisible(false);
-              system("ls Texture");
+           
+             returnCode = system("ls Texture");
+if (returnCode != 0) {
+                throw std::runtime_error("The command 'ls Texture' was not executed correctly");
+}
+
+
+
 
               std::cout << "Choose texture: ";
               std::cin >> t;
@@ -585,7 +592,6 @@ windows_open:
           renderTexture.clear();
           window.setVisible(true);
           evolvewindow.setVisible(false);
-          goto windows_open;
         }
 
         ////STOP AND PAUSE
@@ -793,10 +799,10 @@ windows_open:
       /// drawing text
       std::string output;
       std::ostringstream oss;
-      oss << std::scientific << std::setprecision(2);
+      oss << std::scientific << std::setprecision(3);
 
       output = months[month] + " " + std::to_string(year) +
-               "\nFPS: " + std::to_string(1.0f / elapsed.asSeconds());
+               "\nFPS: " + std::to_string( static_cast<int>(1.0f / elapsed.asSeconds()));
       if (followOnePlanet) {
         oss << "\nm=" << (*ptr)[planetIndex].m
             << "\nvx=" << (*ptr)[planetIndex].v_x
